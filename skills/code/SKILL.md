@@ -119,8 +119,8 @@ invoking message, and from any prior `/my-tech-team:grill-me` or other planning 
 halt on the profile; the user can interject if you misread their repo.
 
 Then leave plan mode. If you know you are in it — a system message says plan mode is active — call
-`ExitPlanMode` (load it with `ToolSearch` if it is deferred). If plan mode is already off, skip the
-call. With no clear evidence either way, call it.
+`ExitPlanMode`. If plan mode is already off, skip the call. With no clear evidence either way, call
+it.
 
 This ledger is what makes gate 2 mechanical rather than a matter of taste. Without it you cannot
 reliably detect that a plan has quietly contradicted something the user settled an hour ago.
