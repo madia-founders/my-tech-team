@@ -23,7 +23,8 @@ cannot run concurrently, doc/version mandates), the better the discovery step do
 | Component | Invoke as | Purpose |
 |---|---|---|
 | `skills/code` | `/my-tech-team:code` | The pipeline (tech-lead instructions) |
-| `skills/grill-me` | `/my-tech-team:grill-me` | Interrogate a plan before running the pipeline |
+| `skills/grill-me` | `/my-tech-team:grill-me` | Interrogate a plan before running the pipeline (preflight also runs it when a feature has no clear plan) |
+| `skills/karpathy-guidelines` | `/my-tech-team:karpathy-guidelines` | Coding principles (MIT) the lead follows and the writing/reviewing agents preload |
 | `agents/plan-challenger` | `my-tech-team:plan-challenger` | Attacks the plan (`xhigh` effort) |
 | `agents/commons-owner` | `my-tech-team:commons-owner` | Lands large shared-package changes |
 | `agents/implementer` | `my-tech-team:implementer` | Builds one unit's slice |
@@ -38,41 +39,14 @@ pinned per role.
 
 This repository is both a marketplace and the plugin. It is private, so you need read access.
 
-**For yourself, in every project:**
-
 ```
 /plugin marketplace add cideck/my-tech-team
 /plugin install my-tech-team@my-tech-team
 ```
 
-**For everyone working in a repository**, commit this to that repo's `.claude/settings.json`:
+The install asks for a scope: just you, or everyone working in the current repository.
 
-```json
-{
-  "extraKnownMarketplaces": {
-    "my-tech-team": {
-      "source": { "source": "github", "repo": "cideck/my-tech-team" },
-      "autoUpdate": true
-    }
-  },
-  "enabledPlugins": { "my-tech-team@my-tech-team": true }
-}
-```
-
-Repository-level marketplaces apply only after you accept the workspace trust dialog for that folder.
-
-`plugin.json` pins no `version`, so the installed copy tracks commits. With `autoUpdate` on, new
-commits arrive in the background, and you apply them with `/reload-plugins`.
-
-## Develop
-
-Load the working copy for one session, without installing:
-
-```
-claude --plugin-dir /path/to/my-tech-team
-```
-
-A `--plugin-dir` copy takes precedence over an installed plugin of the same name.
+**Auto-update**: Turn it on in `/plugin` → **Marketplaces** → **my-tech-team** → **Enable auto-update**.
 
 ## Watch a run
 

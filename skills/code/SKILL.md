@@ -55,6 +55,9 @@ must sweep a whole artifact for unknown unknowns — the plan challenger and the
 rest work from an already-enumerated list and run at `high`. Do not "simplify" by having the agent
 that produced an artifact review its own output — the disagreement is the product.
 
+`implementer`, `commons-owner` and `code-reviewer` preload the `my-tech-team:karpathy-guidelines`
+skill; you load it yourself before you write code (step 7).
+
 **Every spawn prompt carries the project profile block (step 2) verbatim, plus the plan file path
 once it exists.** The agents have no other source for the repo's units, commands, hazards and
 mandates; a paraphrase loses exactly the line they needed.
@@ -65,7 +68,11 @@ mandates; a paraphrase loses exactly the line they needed.
 
 Stop and ask the user if any of these is true: the working tree is dirty, the current branch is the
 repo's default branch (`git symbolic-ref refs/remotes/origin/HEAD`; `main` if that is unset), or there
-is no clear feature to build. Otherwise work on the **current branch** — do not cut a new one.
+is nothing to build at all. Otherwise work on the **current branch** — do not cut a new one.
+
+**A feature but no clear plan:** invoke `my-tech-team:grill-me` before step 2. The test: can you write
+the decisions ledger and a plan without inventing a decision that is the user's to make? If yes, skip
+it. If no, grill — its answers feed the step 3 ledger.
 
 ### 2. Discover the project profile
 
@@ -111,6 +118,10 @@ invoking message, and from any prior `/my-tech-team:grill-me` or other planning 
 **numbered list**. Echo it back to them, **together with the project profile** from step 2. Do not
 halt on the profile; the user can interject if you misread their repo.
 
+Then leave plan mode. If you know you are in it — a system message says plan mode is active — call
+`ExitPlanMode`. If plan mode is already off, skip the call. With no clear evidence either way, call
+it.
+
 This ledger is what makes gate 2 mechanical rather than a matter of taste. Without it you cannot
 reliably detect that a plan has quietly contradicted something the user settled an hour ago.
 
@@ -125,7 +136,8 @@ or *contradicts decision N*.
 **Gate 1 — disagreement.** If you and the challenger disagree on anything material, present the
 alternatives to the user with honest pros and cons for each, and **halt**. They decide. Do not
 express a preference so strongly that it forecloses the choice, and do not resolve it yourself
-because one side sounds more confident.
+because one side sounds more confident. An objection that the plan settles a user-owned question
+the ledger leaves open halts the same way, even when you agree with it.
 
 **Gate 2 — contradiction.** If the settled plan contradicts a numbered ledger decision, name the
 decision, explain what changed and why, and ask whether they agree to revise it. **Halt** until they
@@ -141,6 +153,10 @@ profile. This file is the contract every implementer reads — they get its path
 it. Name its location in the hand-back, so a maintainer who did not expect one can move or drop it.
 
 ### 7. Commons first
+
+Before you write any code yourself this run — here, in step 8, or a step 10 fix — invoke
+`my-tech-team:karpathy-guidelines` if you have not already. In the skill, "the user's request" means
+the plan file.
 
 Land every shared-package and contract change **before** any implementer starts, so they build
 against a frozen contract. Do this inline yourself when it is routine; spawn `commons-owner` when the
@@ -239,7 +255,7 @@ concretely:
 
 - **The merge**, which is always theirs — and opening the PR/MR too, when there was no `gh`.
 - **Every decision you deferred, or made under an assumption** — and what you assumed, including any
-  profile fact you had to default.
+  profile fact you had to default, and every assumption an implementer or `commons-owner` reported.
 - **Every review finding you dropped**, with the evidence that dropped it (step 10.3).
 - **What the PR deliberately does not do**: scope you cut, follow-ups you left, known gaps.
 - **Manual steps CI cannot do for them**: migrations to run, secrets or env vars to set, a deploy, a
@@ -263,6 +279,11 @@ files into a commit.
 When an implementer needs something outside its folder, it **ends its turn** with the request. You
 make the change (or delegate it to `commons-owner`), then **resume that implementer** with
 `SendMessage` telling it the contract has landed.
+
+When an implementer or `commons-owner` halts with a question the plan does not answer, and the
+answer is the user's to decide, halt and ask them as at gate 1; otherwise answer it yourself. Either
+way, record the answer in the plan file (a user's answer in its ledger too), resume the agent, and
+carry the answer into your hand-back.
 
 Two harness facts this protocol depends on, both verified — do not design around guesses:
 

@@ -20,6 +20,8 @@ repo's ownership units, check commands, gate, hazards, and mandates, as discover
 - **Does it actually solve the stated problem?** Plans drift into solving an adjacent, easier problem.
 - **Is it the simplest thing that works?** Look for speculative abstraction, unrequested flexibility,
   and scope the user never asked for.
+- **What has it silently assumed?** Places where the plan picks one reading of an ambiguous
+  requirement without saying so. If that reading is the user's to choose, say so in the problem line.
 - **What does it break?** Side-effects on existing behaviour, contracts, and callers.
 - **What has it not thought about?** Zero/null/empty cases, concurrency, failure and partial-failure
   paths, migration and rollback, and any isolation boundary the repo enforces (tenancy, permissions).
