@@ -64,8 +64,8 @@ mandates; a paraphrase loses exactly the line they needed.
 ### 1. Preflight
 
 Stop and ask the user if any of these is true: the working tree is dirty, the current branch is the
-repo's base branch (discovered in step 2; `main` if nothing else is found), or there is no clear
-feature to build. Otherwise work on the **current branch** — do not cut a new one.
+repo's default branch (`git symbolic-ref refs/remotes/origin/HEAD`; `main` if that is unset), or there
+is no clear feature to build. Otherwise work on the **current branch** — do not cut a new one.
 
 ### 2. Discover the project profile
 
@@ -88,8 +88,8 @@ Record the profile as a short **numbered block**, one line per fact:
 1. **Ownership units.** The leaf packages an implementer may own, and the shared/commons packages
    that others depend on (those are yours). A repo with no workspaces is **one unit**: it never fans
    out, and you write all the code.
-2. **Per-unit checks.** For each leaf unit, the commands that prove it green on its own: lint,
-   typecheck, and the coverage-gated test run, where they exist. Say which are missing.
+2. **Per-unit checks.** For each unit — leaf and shared — the commands that prove it green on its
+   own: lint, typecheck, and the coverage-gated test run, where they exist. Say which are missing.
 3. **Repo gate.** The full local suite that mirrors CI, and whether its steps must run serially.
 4. **Base branch and PR tool.** The base from `origin/HEAD` (default `main`); `gh` when the remote is
    GitHub and `gh` is authenticated, otherwise none.
