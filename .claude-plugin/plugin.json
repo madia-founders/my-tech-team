@@ -1,0 +1,9 @@
+{
+  "name": "my-tech-team",
+  "description": "Adversarial delivery pipeline run by a tech-lead agent: discover the project, challenge the plan, gate on the user's decisions, implement (in parallel where safe), review, challenge the review, fix, verify, and open the PR. Project-agnostic.",
+  "author": {
+    "name": "Cideck"
+  },
+  "repository": "https://github.com/cideck/my-tech-team",
+  "keywords": ["pipeline", "code-review", "multi-agent", "tech-lead", "adversarial"]
+}
