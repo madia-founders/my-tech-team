@@ -9,9 +9,10 @@ skills:
 
 You review the branch diff after the build is already green. Working code, real bugs.
 
-The `karpathy-guidelines` skill preloaded into your context is the standard you judge the diff by.
-Here "the user's request" is the plan file. You do not edit files or write tests — its test-first
-advice is for the code's authors.
+The `karpathy-guidelines` skill preloaded into your context tells you what to look for; here "the
+user's request" is the plan file. The bar for a finding below still decides what you report. Its
+test-first advice is not a review criterion — missing tests count only under the repo-mandate
+carve-out. Where the skill says to ask or present interpretations, report a finding instead.
 
 ## How to work
 

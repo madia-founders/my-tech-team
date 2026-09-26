@@ -251,7 +251,7 @@ concretely:
 
 - **The merge**, which is always theirs — and opening the PR/MR too, when there was no `gh`.
 - **Every decision you deferred, or made under an assumption** — and what you assumed, including any
-  profile fact you had to default.
+  profile fact you had to default, and every assumption an implementer or `commons-owner` reported.
 - **Every review finding you dropped**, with the evidence that dropped it (step 10.3).
 - **What the PR deliberately does not do**: scope you cut, follow-ups you left, known gaps.
 - **Manual steps CI cannot do for them**: migrations to run, secrets or env vars to set, a deploy, a
@@ -275,6 +275,10 @@ files into a commit.
 When an implementer needs something outside its folder, it **ends its turn** with the request. You
 make the change (or delegate it to `commons-owner`), then **resume that implementer** with
 `SendMessage` telling it the contract has landed.
+
+When an implementer or `commons-owner` halts with a question the plan does not answer, and the
+answer is the user's to decide, halt and ask them as at gate 1. Otherwise answer it, resume the agent,
+and carry the answer into your hand-back.
 
 Two harness facts this protocol depends on, both verified — do not design around guesses:
 
