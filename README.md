@@ -46,18 +46,9 @@ This repository is both a marketplace and the plugin. It is private, so you need
 
 The install asks for a scope: just you, or everyone working in the current repository.
 
-`plugin.json` pins no `version`, so the installed copy tracks commits. When new commits arrive, you
-apply them with `/reload-plugins`.
-
-## Develop
-
-Load the working copy for one session, without installing:
-
-```
-claude --plugin-dir /path/to/my-tech-team
-```
-
-A `--plugin-dir` copy takes precedence over an installed plugin of the same name.
+Auto-update is off by default for third-party marketplaces. Turn it on in `/plugin` →
+**Marketplaces** → **my-tech-team** → **Enable auto-update**. `plugin.json` pins no `version`, so the
+installed copy then tracks commits; apply new ones with `/reload-plugins`.
 
 ## Watch a run
 
