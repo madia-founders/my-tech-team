@@ -39,31 +39,15 @@ pinned per role.
 
 This repository is both a marketplace and the plugin. It is private, so you need read access.
 
-**For yourself, in every project:**
-
 ```
 /plugin marketplace add cideck/my-tech-team
 /plugin install my-tech-team@my-tech-team
 ```
 
-**For everyone working in a repository**, commit this to that repo's `.claude/settings.json`:
+The install asks for a scope: just you, or everyone working in the current repository.
 
-```json
-{
-  "extraKnownMarketplaces": {
-    "my-tech-team": {
-      "source": { "source": "github", "repo": "cideck/my-tech-team" },
-      "autoUpdate": true
-    }
-  },
-  "enabledPlugins": { "my-tech-team@my-tech-team": true }
-}
-```
-
-Repository-level marketplaces apply only after you accept the workspace trust dialog for that folder.
-
-`plugin.json` pins no `version`, so the installed copy tracks commits. With `autoUpdate` on, new
-commits arrive in the background, and you apply them with `/reload-plugins`.
+`plugin.json` pins no `version`, so the installed copy tracks commits. When new commits arrive, you
+apply them with `/reload-plugins`.
 
 ## Develop
 
