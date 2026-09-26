@@ -277,8 +277,9 @@ make the change (or delegate it to `commons-owner`), then **resume that implemen
 `SendMessage` telling it the contract has landed.
 
 When an implementer or `commons-owner` halts with a question the plan does not answer, and the
-answer is the user's to decide, halt and ask them as at gate 1. Otherwise answer it, resume the agent,
-and carry the answer into your hand-back.
+answer is the user's to decide, halt and ask them as at gate 1; otherwise answer it yourself. Either
+way, record the answer in the plan file (a user's answer in its ledger too), resume the agent, and
+carry the answer into your hand-back.
 
 Two harness facts this protocol depends on, both verified — do not design around guesses:
 
