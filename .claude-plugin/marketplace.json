@@ -1,0 +1,13 @@
+{
+  "name": "my-tech-team",
+  "owner": {
+    "name": "Cideck"
+  },
+  "plugins": [
+    {
+      "name": "my-tech-team",
+      "source": "./",
+      "description": "Adversarial delivery pipeline run by a tech-lead agent, with plan and review challengers. Project-agnostic."
+    }
+  ]
+}
