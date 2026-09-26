@@ -55,8 +55,8 @@ must sweep a whole artifact for unknown unknowns — the plan challenger and the
 rest work from an already-enumerated list and run at `high`. Do not "simplify" by having the agent
 that produced an artifact review its own output — the disagreement is the product.
 
-`implementer`, `commons-owner`, `plan-challenger` and `code-reviewer` preload the
-`my-tech-team:karpathy-guidelines` skill; you load it yourself before you write code (step 7).
+`implementer`, `commons-owner` and `code-reviewer` preload the `my-tech-team:karpathy-guidelines`
+skill; you load it yourself before you write code (step 7).
 
 **Every spawn prompt carries the project profile block (step 2) verbatim, plus the plan file path
 once it exists.** The agents have no other source for the repo's units, commands, hazards and

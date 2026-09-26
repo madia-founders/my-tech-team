@@ -3,8 +3,6 @@ name: plan-challenger
 description: Adversarially challenges an implementation plan before any code is written. Spawned by the my-tech-team pipeline; returns objections tagged against the user's numbered decisions.
 model: inherit
 effort: xhigh
-skills:
-  - my-tech-team:karpathy-guidelines
 ---
 
 You challenge implementation plans. Your job is to find what is wrong with this plan **before** anyone
@@ -16,11 +14,6 @@ is the scarcest resource in this pipeline.
 
 The lead gives you the plan, the user's numbered decisions ledger, and the **project profile** — the
 repo's ownership units, check commands, gate, hazards, and mandates, as discovered this run.
-
-The `karpathy-guidelines` skill preloaded into your context is a lens for judging the plan, not
-instructions for writing it. Here "the user's request" is the user's request plus the decisions
-ledger; the plan is what you judge against it. Where the skill says to ask or to present
-interpretations, raise an objection instead.
 
 ## What to attack
 

@@ -18,6 +18,9 @@ run `grill-me` when a feature is clear but its plan is not.
    skip grill-me.
 5. `skills/grill-me/SKILL.md` stays unchanged — no exit/hand-off section.
 6. The approved plan (this file, as settled after the plan challenge) is the plan to execute.
+7. `plan-challenger` does not use the skill (PR review).
+8. `commons-owner` mirrors the implementer's "Stay in scope" wording (PR review).
+9. `code-reviewer`'s skill paragraph is its own section, just before Output (PR review).
 
 ## Project profile
 
@@ -38,19 +41,17 @@ run `grill-me` when a feature is clear but its plan is not.
 
 1. **Import** `skills/karpathy-guidelines/SKILL.md` byte-for-byte (MIT, attribution intact), model-invocable.
 2. **Preload** it with `skills: [my-tech-team:karpathy-guidelines]` (plugin-qualified — the bare name
-   can resolve to a repo's own copy first) in `implementer`, `commons-owner`, `plan-challenger`,
-   `code-reviewer`. Not `review-challenger`.
+   can resolve to a repo's own copy first) in `implementer`, `commons-owner`, `code-reviewer`.
+   Not `plan-challenger` or `review-challenger`.
 3. **One mapping line per role**:
    - Writers (implementer, commons-owner): "the user's request" is the plan file. Halt to the lead
      only when the plan does not answer a question that changes what you build; otherwise take the
      simpler reading and list it as an assumption. Never ask the user directly.
-   - plan-challenger: the request is the user's request plus the ledger; the plan is what you judge
-     against it; "ask" / "present interpretations" means raise an objection.
-   - code-reviewer: the request is the plan file; the skill is the standard you judge the diff by —
-     you do not edit files or write tests.
+   - code-reviewer (own "Coding principles" section before Output): the request is the plan file;
+     the bar for a finding still decides what is reported; you do not edit files or write tests.
 4. **Role hooks**:
    - implementer: "Stay in scope" points at the skill; report lists every assumption.
-   - commons-owner: "the whole contract the plan names, and nothing beyond it"; report lists every assumption.
+   - commons-owner: "Stay in scope", worded like the implementer's; report lists every assumption.
    - code-reviewer: no new bullet (it would clash with the bar for a finding). Extend "Conformance to
      the plan" with changed lines that trace to nothing in the plan; extend "Reuse, simplification"
      with unrequested options/configurability and single-caller abstractions.
@@ -61,7 +62,7 @@ run `grill-me` when a feature is clear but its plan is not.
      halts like a disagreement, even when the lead agrees.
    - Step 7 opens with: invoke `my-tech-team:karpathy-guidelines` before writing any code yourself
      this run (step 7, step 8, or a step 10 fix).
-   - `## The team`: note that four agents preload the skill.
+   - `## The team`: note that three agents preload the skill.
 6. **README**: add a Contents row `/my-tech-team:karpathy-guidelines`; note on the grill-me row that
    preflight also runs it.
 

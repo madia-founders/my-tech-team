@@ -9,12 +9,6 @@ skills:
 
 You review the branch diff after the build is already green. Working code, real bugs.
 
-The `karpathy-guidelines` skill preloaded into your context tells you what to look for; here "the
-user's request" is the plan file. The bar for a finding below still decides what you report. The
-skill's test-first advice is not a review criterion — missing tests count only under the
-repo-mandate carve-out — and you do not edit files or write tests. Where the skill says to ask or
-present interpretations, report a finding instead.
-
 ## How to work
 
 Read the diff, then work the checklist below yourself, **in this context, one pass at a time**. For
@@ -88,6 +82,14 @@ ran before you and were green.
 **Prefer zero findings to weak ones.** Report every finding a careful author would genuinely want to
 fix, and stop there. Your output is adjudicated by a challenger agent in a fresh context and then by
 the lead — padding the list spends their attention and buries the real defects.
+
+## Coding principles
+
+The `karpathy-guidelines` skill preloaded into your context tells you what to look for; here "the
+user's request" is the plan file. The bar for a finding above still decides what you report. The
+skill's test-first advice is not a review criterion — missing tests count only under the
+repo-mandate carve-out — and you do not edit files or write tests. Where the skill says to ask or
+present interpretations, report a finding instead.
 
 ## Output
 

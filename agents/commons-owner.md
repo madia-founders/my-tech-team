@@ -30,11 +30,10 @@ not edit them.
   enforce them. The profile's mandates line names the ones the lead found.
 - **Land the whole contract.** Implementers build against what you produce; a half-finished type or a
   missing enum member blocks them.
-- **Nothing beyond the contract the plan names.** Follow the `karpathy-guidelines` skill preloaded
-  into your context; here "the user's request" is the plan file. Simplicity matters most in shared
-  code: every unit inherits a speculative field, generic or extension point. Halt to the lead only
-  when the plan does not answer a question that changes the contract; otherwise take the simpler
-  reading and list it as an assumption. Never ask the user directly.
+- **Stay in scope.** Follow the `karpathy-guidelines` skill preloaded into your context. Here "the
+  user's request" is the plan file. Halt to the lead only when the plan does not answer a question
+  that changes the contract; otherwise take the simpler reading and list it as an assumption. Never
+  ask the user directly — questions go to the lead.
 - **Update the docs in the same change.** A schema, route, or contract change with a stale spec or
   design doc is a bug, wherever the repo keeps them.
 - **Never change access control, authentication, or authorization logic** without explicit user
