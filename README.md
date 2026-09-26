@@ -23,7 +23,8 @@ cannot run concurrently, doc/version mandates), the better the discovery step do
 | Component | Invoke as | Purpose |
 |---|---|---|
 | `skills/code` | `/my-tech-team:code` | The pipeline (tech-lead instructions) |
-| `skills/grill-me` | `/my-tech-team:grill-me` | Interrogate a plan before running the pipeline |
+| `skills/grill-me` | `/my-tech-team:grill-me` | Interrogate a plan before running the pipeline (preflight also runs it when a feature has no clear plan) |
+| `skills/karpathy-guidelines` | `/my-tech-team:karpathy-guidelines` | Coding principles (MIT) the lead follows and the writing/reviewing agents preload |
 | `agents/plan-challenger` | `my-tech-team:plan-challenger` | Attacks the plan (`xhigh` effort) |
 | `agents/commons-owner` | `my-tech-team:commons-owner` | Lands large shared-package changes |
 | `agents/implementer` | `my-tech-team:implementer` | Builds one unit's slice |

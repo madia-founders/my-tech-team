@@ -55,6 +55,9 @@ must sweep a whole artifact for unknown unknowns — the plan challenger and the
 rest work from an already-enumerated list and run at `high`. Do not "simplify" by having the agent
 that produced an artifact review its own output — the disagreement is the product.
 
+`implementer`, `commons-owner`, `plan-challenger` and `code-reviewer` preload the
+`my-tech-team:karpathy-guidelines` skill; you load it yourself before you write code (step 7).
+
 **Every spawn prompt carries the project profile block (step 2) verbatim, plus the plan file path
 once it exists.** The agents have no other source for the repo's units, commands, hazards and
 mandates; a paraphrase loses exactly the line they needed.
@@ -65,7 +68,11 @@ mandates; a paraphrase loses exactly the line they needed.
 
 Stop and ask the user if any of these is true: the working tree is dirty, the current branch is the
 repo's default branch (`git symbolic-ref refs/remotes/origin/HEAD`; `main` if that is unset), or there
-is no clear feature to build. Otherwise work on the **current branch** — do not cut a new one.
+is nothing to build at all. Otherwise work on the **current branch** — do not cut a new one.
+
+**A feature but no clear plan:** invoke `my-tech-team:grill-me` before step 2. The test: can you write
+the decisions ledger and a plan without inventing a decision that is the user's to make? If yes, skip
+it. If no, grill — its answers feed the step 3 ledger.
 
 ### 2. Discover the project profile
 
@@ -125,7 +132,8 @@ or *contradicts decision N*.
 **Gate 1 — disagreement.** If you and the challenger disagree on anything material, present the
 alternatives to the user with honest pros and cons for each, and **halt**. They decide. Do not
 express a preference so strongly that it forecloses the choice, and do not resolve it yourself
-because one side sounds more confident.
+because one side sounds more confident. An objection that the plan settles a user-owned question
+the ledger leaves open halts the same way, even when you agree with it.
 
 **Gate 2 — contradiction.** If the settled plan contradicts a numbered ledger decision, name the
 decision, explain what changed and why, and ask whether they agree to revise it. **Halt** until they
@@ -141,6 +149,10 @@ profile. This file is the contract every implementer reads — they get its path
 it. Name its location in the hand-back, so a maintainer who did not expect one can move or drop it.
 
 ### 7. Commons first
+
+Before you write any code yourself this run — here, in step 8, or a step 10 fix — invoke
+`my-tech-team:karpathy-guidelines` if you have not already. In the skill, "the user's request" means
+the plan file.
 
 Land every shared-package and contract change **before** any implementer starts, so they build
 against a frozen contract. Do this inline yourself when it is routine; spawn `commons-owner` when the
