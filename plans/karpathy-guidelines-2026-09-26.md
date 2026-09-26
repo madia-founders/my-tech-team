@@ -21,6 +21,8 @@ run `grill-me` when a feature is clear but its plan is not.
 7. `plan-challenger` does not use the skill (PR review).
 8. `commons-owner` mirrors the implementer's "Stay in scope" wording (PR review).
 9. `code-reviewer`'s skill paragraph is its own section, just before Output (PR review).
+10. Step 3 leaves plan mode: call `ExitPlanMode` when in plan mode, skip it when plan mode is
+    already off, and call it when there is no clear evidence either way.
 
 ## Project profile
 
@@ -63,6 +65,7 @@ run `grill-me` when a feature is clear but its plan is not.
    - Step 7 opens with: invoke `my-tech-team:karpathy-guidelines` before writing any code yourself
      this run (step 7, step 8, or a step 10 fix).
    - `## The team`: note that three agents preload the skill.
+   - Step 3: after echoing the ledger and profile, call `ExitPlanMode` per decision 10.
 6. **README**: add a Contents row `/my-tech-team:karpathy-guidelines`; note on the grill-me row that
    preflight also runs it.
 
