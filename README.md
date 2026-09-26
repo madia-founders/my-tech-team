@@ -46,9 +46,7 @@ This repository is both a marketplace and the plugin. It is private, so you need
 
 The install asks for a scope: just you, or everyone working in the current repository.
 
-Auto-update is off by default for third-party marketplaces. Turn it on in `/plugin` →
-**Marketplaces** → **my-tech-team** → **Enable auto-update**. `plugin.json` pins no `version`, so the
-installed copy then tracks commits; apply new ones with `/reload-plugins`.
+**Auto-update**: Turn it on in `/plugin` → **Marketplaces** → **my-tech-team** → **Enable auto-update**.
 
 ## Watch a run
 
