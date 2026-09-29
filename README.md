@@ -12,6 +12,11 @@ session acts as the tech lead and runs a team of specialist agents against the w
 5. **Review** the full branch diff, **challenge the review**, and adjudicate on command evidence.
 6. **Open the PR** and hand back a "What's left for you" list. It never merges.
 
+`/my-tech-team:peer-review` runs only the review half, in plan mode, on the current branch or a PR
+number. The main session is the review lead: it reviews, has the review challenged, adjudicates on
+evidence, and gives you a numbered list to keep or reject. Kept findings become a **pending** PR review
+that you submit yourself. It never fixes code and never submits a review.
+
 Nothing in the plugin is specific to one project. Everything repo-specific is read from the repo at
 the start of each run, in this order: `CLAUDE.md` and its required reads, then the package manifests,
 then the CI config, then defaults (`main`, `gh`). The gate is the exception: it is taken from CI first.
@@ -23,6 +28,7 @@ cannot run concurrently, doc/version mandates), the better the discovery step do
 | Component | Invoke as | Purpose |
 |---|---|---|
 | `skills/code` | `/my-tech-team:code` | The pipeline (tech-lead instructions) |
+| `skills/peer-review` | `/my-tech-team:peer-review [PR#]` | Review-only lead (plan mode): review, challenge, you pick, pending PR review |
 | `skills/grill-me` | `/my-tech-team:grill-me` | Interrogate a plan before running the pipeline (preflight also runs it when a feature has no clear plan) |
 | `skills/karpathy-guidelines` | `/my-tech-team:karpathy-guidelines` | Coding principles (MIT) the lead follows and the writing/reviewing agents preload |
 | `agents/plan-challenger` | `my-tech-team:plan-challenger` | Attacks the plan (`xhigh` effort) |

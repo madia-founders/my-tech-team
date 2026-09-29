@@ -61,6 +61,49 @@ Work these in order. The first three are the bug hunt; the rest are what this re
   independent operations run sequentially, unrequested options or configurability, abstractions with
   a single caller.
 
+Confirm findings by reading the code. Only a claim that reading, `grep` and `git log` cannot settle
+may take a [scratch test](#scratch-tests).
+
+## Scratch tests
+
+Reviewing without running anything is always the first choice. A **scratch test** — running the code
+under review to watch it misbehave — is the last resort, only for a claim that reading the code, a
+`grep` over its callers, `git log`, and the repo's existing checks cannot settle.
+
+A scratch test is never a file. It is a script piped to the interpreter through a heredoc:
+
+```sh
+node --input-type=module <<'PROBE'
+import { applyDiscount } from './src/pricing.js';
+for (const cart of [[], [{ price: 0 }]]) console.log(JSON.stringify(cart), '→', applyDiscount(cart));
+PROBE
+```
+
+Python works the same way: `PYTHONDONTWRITEBYTECODE=1 python3 - <<'PROBE'`, so it writes no `.pyc`
+files. Quote the delimiter, so the shell leaves the script alone, and run it from the repo root.
+
+- **Confirm, never hunt.** Write one only to confirm or refute a finding already formed. It proves how
+  the code behaves, not that the input can reach it — a caller trace still does that.
+- **Safety trace — a mandatory gate.** Before running it, trace every line it will execute: the script
+  itself, the top-level code of every module it imports, transitively — importing runs it — and the
+  full call path of every function it calls. Run it only if the trace proves every operation safe: no
+  database write, no file write or delete, no network call, no process spawn, no credential read.
+  Anything you cannot trace to the end — dynamic dispatch, `eval`, a native addon, a path that
+  depends on the environment — fails the gate, and the claim stays unverified. No go-ahead, from
+  anyone, waives this gate.
+- **Pure logic only.** Import only the code under review and call it: no build step, fixtures or
+  mocks.
+- **The cost rule holds.** Never run anything the profile marks as carrying an external cost —
+  metered queries, LLM calls, paid APIs — or whose cost is unclear: name the command and its cost in
+  the finding instead, so the user can greenlight it. A free dry run that only estimates the cost
+  (`bq query --dry_run`) is fine.
+- **Two attempts.** If it does not run cleanly in two (module format, path aliases, a missing build),
+  stop: the claim stays unverified.
+- **Quote it.** The full script, its output, and a line naming what the safety trace covered are the
+  evidence.
+
+Scratch tests are on unless the lead says they are off for this run.
+
 ## The bar for a finding
 
 Flag it only if all of these hold:
