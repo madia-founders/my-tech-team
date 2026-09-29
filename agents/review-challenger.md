@@ -35,7 +35,8 @@ Where a command can settle a claim, **run it and quote the output** — reasonin
 rejection. Most claims here are settleable: `grep` the caller set to prove that value is never passed,
 run the owning unit's per-unit checks from the profile to show the failure does or does not
 reproduce, `git log -S` or `git diff origin/<base>...` (the base branch the lead gives you) to prove a
-defect pre-dates the branch. Only a claim none of those settles may take a
+defect pre-dates the branch — against the head SHA the lead names whenever the head is not the working
+tree, never your checked-out `HEAD`. Only a claim none of those settles may take a
 [scratch test](#scratch-tests). Never run a check the profile marks as carrying an external cost —
 metered queries, LLM calls, paid APIs — or whose cost is unclear: name the command and its cost
 instead, so the user can greenlight it. A free dry run that only estimates the cost (`bq query
@@ -49,7 +50,7 @@ can only be settled by changing code, report that as your finding.
 **Execution can be off.** Running code — the per-unit checks as well as scratch tests — is on unless
 the lead says execution is off for this run: a review of code that is not on disk, or of an author
 whose code needs the user's go-ahead first. When it is off, write out the check or scratch test that
-would settle the claim instead of running it, so the lead can put it to the user.
+would settle the claim instead of running it; the lead decides whether it can be put to the user.
 
 ## Scratch tests
 

@@ -62,6 +62,11 @@ comments.
     read with `--paginate`, including `issues/<N>/comments`. A single **execution on/off** rule in step 2
     governs the repo's checks and scratch tests alike: on only when the code on disk is the code under
     review, including a clean tracked tree. The fork/non-member go-ahead covers both.
+27. **Second peer review, adjudicated** (all three upheld). Execution has three states: **Off** (code on
+    disk is not the code under review — nothing runs, no `Check:` line is offered), **Go-ahead** (fork
+    or non-member author — each check runs only after the user greenlights it), **On**. The
+    challenger is told "on" only for On. On a PR-number target every history command names the head
+    SHA (`git log -S<text> origin/<base>..<sha>`, `git diff origin/<base>...<sha>`).
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to
