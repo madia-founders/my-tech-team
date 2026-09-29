@@ -43,23 +43,35 @@ This skill runs only in plan mode — it is what keeps the review read-only.
 
 ### 2. Resolve the target
 
-**No argument — the current branch.** The base is the repo's default branch
-(`git symbolic-ref refs/remotes/origin/HEAD`; `main` if that is unset). Look for its PR:
-`gh pr view --json number,url,headRefOid,baseRefName,body,isCrossRepository,authorAssociation`. When a
-PR exists, compare `HEAD` with its
-`headRefOid`. If they differ — local commits not pushed, or the branch behind its remote — **halt and
-ask**: push first, or review the PR head as it stands. Comments anchor to the PR head, so reviewing
-anything else produces comments on lines the PR does not contain.
+**No argument — the current branch.** Look for its PR:
+`gh pr view --json number,url,headRefOid,baseRefName,body,isCrossRepository`. The base is the PR's
+`baseRefName`; with no PR, the repo's default branch (`git symbolic-ref refs/remotes/origin/HEAD`;
+`main` if that is unset). Run `git fetch origin <base>` so `origin/<base>` is current. When a PR
+exists, compare `HEAD` with its `headRefOid`. If they differ — local commits not pushed, or the branch
+behind its remote — **halt and ask**: push first, or review the PR head as it stands. Comments anchor
+to the PR head, so reviewing anything else produces comments on lines the PR does not contain.
+Reviewing the PR head as it stands means handling it exactly like a PR-number target, below.
 
-**A PR number.** `gh pr view <N> --json` with the same fields, then
-`git fetch origin pull/<N>/head <base>` — this updates `FETCH_HEAD` and the remote-tracking base only;
-create no branch and check nothing out. Read files at the head with `git show <sha>:<path>` and search
-with `git grep <pattern> <sha>`.
+**A PR number.** `gh pr view <N> --json` with the same fields; the base is its `baseRefName`. Then
+`git fetch origin pull/<N>/head <base>` — this updates `FETCH_HEAD` and `origin/<base>` only; create
+no branch and check nothing out. The head is `headRefOid`: read files at it with
+`git show <sha>:<path>` and search with `git grep <pattern> <sha>`, never from the working tree.
 
-The diff is `git diff <base>...<head>`. If it is empty, say so and stop. Review committed work only: a
-dirty tree is ignored, and you say so in the report, because uncommitted lines are not in the PR.
+On a PR, read the author's standing with
+`gh api repos/{owner}/{repo}/pulls/<N> --jq .author_association` — `gh pr view` has no such field.
 
-Then settle whether [scratch tests](#scratch-tests) are on for this run.
+The diff is `git diff origin/<base>...<head>` — always the remote-tracking base, never a local branch
+that may be behind. If it is empty, say so and stop. Review committed work only: a dirty tree is
+ignored, and you say so in the report, because uncommitted lines are not in the PR.
+
+**Execution on or off.** Running code — the repo's checks as well as [scratch tests](#scratch-tests) —
+is on only when the code on disk is the code under review: the current-branch target, `HEAD` equal to
+the PR head when there is a PR, and a clean tracked tree (`git status --porcelain
+--untracked-files=no` prints nothing). Otherwise execution is off: the review is static, and a claim
+only running code could settle stays unverified. Running code runs the author's code on this machine,
+so on a PR from a fork (`isCrossRepository`) or from an author whose `author_association` is not
+`OWNER`, `MEMBER` or `COLLABORATOR`, each check or scratch test needs the user's go-ahead through a
+`Check:` line (step 7).
 
 ### 3. Discover the project profile
 
@@ -81,8 +93,9 @@ Record a short **numbered block**, one line per fact:
    layering boundaries, test-data rules. **One mandate per line.**
 6. **Intent.** The PR body, plus any plan file the diff adds or the PR body links. With neither, say
    so: step 4 skips its conformance check, and the report mentions it.
-7. **Existing threads.** On a PR: `gh api repos/{owner}/{repo}/pulls/<N>/comments` and
-   `.../pulls/<N>/reviews`. Without one, `GetDiffComments` if Conductor's tools are available. Note
+7. **Existing threads.** On a PR, with `gh api --paginate` (a single page stops at 30 items):
+   `repos/{owner}/{repo}/pulls/<N>/comments` (inline), `.../pulls/<N>/reviews` (review bodies), and
+   `.../issues/<N>/comments` (the conversation). Without one, `GetDiffComments` if Conductor's tools are available. Note
    whether you already have a **pending** review on the PR — GitHub allows only one per reviewer.
 
 ### 4. Review
@@ -141,9 +154,10 @@ reportable severity, see step 6); a **likelihood** — Certain, Likely, Possible
 ### 5. Challenge
 
 Spawn `my-tech-team:review-challenger`, named `review-challenger`, in the foreground. Its prompt
-carries your numbered findings, the target (base, head SHA, and — for a PR number — that files at the
-head are read with `git show <sha>:<path>` and `git grep <pattern> <sha>`), whether
-[scratch tests](#scratch-tests) are on for this run, and the profile block verbatim, intent included.
+carries your numbered findings, the target (`origin/<base>`, head SHA, and — whenever the head is not
+the working tree — that files at the head are read with `git show <sha>:<path>` and
+`git grep <pattern> <sha>`), whether execution is on for this run (step 2) — off means it runs neither
+checks nor scratch tests — and the profile block verbatim, intent included.
 
 ### 6. Adjudicate
 
@@ -151,7 +165,8 @@ Contested findings are yours to settle — but settle them **on evidence**, not 
 argues better. A verdict backed by command output — a `grep` over the caller set, a `git log -S`
 proving the defect pre-dates the branch, a failing check — beats one backed by reasoning alone. When
 neither side ran a command and one would settle it, **run it yourself**: a static command first, a
-[scratch test](#scratch-tests) only when none settles it.
+[scratch test](#scratch-tests) only when none settles it. A check or scratch test runs only when
+execution is on (step 2).
 
 **Never run a check that carries an external cost** — anything the profile's hazards line marks as
 costly (metered queries, LLM calls, paid APIs), or whose cost is unclear. When such a check would
@@ -176,12 +191,13 @@ Fix: <how to fix it, one or two lines>
 ```
 
 Add "(unverified)" to the headline of any finding kept in doubt. When a costly check would settle it
-(step 6), or a scratch test that needs the user's go-ahead (see [Scratch tests](#scratch-tests)), add
-a fourth line — `Check: <command> — <estimated cost, "cost unknown", or why it needs a go-ahead>` —
-and run it only if the user greenlights it in their reply; then re-adjudicate that finding and show
-the user its new verdict before step 8. Then a short **Dropped** tail, one line per dropped finding: `<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Then one line saying
-where kept findings will go: a pending review on PR #N, Conductor diff comments, or nowhere (and
-why). Mention a dirty tree or a skipped conformance check here too.
+(step 6), or a check or scratch test that needs the user's go-ahead (step 2), add a fourth line —
+`Check: <command> — <estimated cost, "cost unknown", or why it needs a go-ahead>` — and run it only
+if the user greenlights it in their reply; then re-adjudicate that finding and show the user its new
+verdict before step 8. Then a short **Dropped** tail, one line per dropped finding:
+`<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Then one line saying where kept findings will
+go: a pending review on PR #N, Conductor diff comments, or nowhere (and why). Mention a dirty tree,
+execution being off, or a skipped conformance check here too.
 
 Then **stop** and wait for the user's reply — "keep 1, 3, 5", "drop 2", "run check 4", with any
 edits to wording.
@@ -193,10 +209,12 @@ user to submit or delete it — do not add to it. Otherwise write a two-column *
 the plan file: `file:line` | comment. Each comment is the issue and the fix only, with the user's
 edits applied — no title, severity or likelihood. Mark a row `(review body)` when its line is outside
 the diff hunks: GitHub rejects inline comments there. Call `ExitPlanMode`. On approval, create the
-review in one call:
+review in one call, with the JSON piped in through a heredoc rather than a file:
 
-```
-gh api -X POST repos/{owner}/{repo}/pulls/<N>/reviews --input <json>
+```sh
+gh api -X POST repos/{owner}/{repo}/pulls/<N>/reviews --input - <<'REVIEW'
+{ "commit_id": "…", "body": "…", "comments": [ … ] }
+REVIEW
 ```
 
 with `commit_id` the head SHA, `body` the `(review body)` rows (each prefixed with its `file:line`),
@@ -245,9 +263,5 @@ files. Quote the delimiter, so the shell leaves the script alone, and run it fro
 - **Quote it.** The full script, its output, and a line naming what the safety trace covered are the
   evidence.
 
-**When they are on.** Only when the code on disk is the code under review: the current-branch target,
-with `HEAD` equal to the PR head when there is a PR. A PR-number target, or a PR reviewed at its head
-over a different local `HEAD`, is static-only. A scratch test also runs the author's code on this
-machine, so when the PR comes from a fork (`isCrossRepository`) or from an author who is not `OWNER`,
-`MEMBER` or `COLLABORATOR` (`authorAssociation`), each one needs the user's go-ahead through a
-`Check:` line (step 7).
+**When they may run.** Only when execution is on (step 2), with the go-ahead step 2 requires for a
+fork or non-member author.

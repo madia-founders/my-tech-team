@@ -56,6 +56,12 @@ comments.
     imported module's top-level code, and the full call path. Run only if every operation is proven
     safe (no DB write, file write/delete, network call, process spawn, credential read). Untraceable
     → no run. No go-ahead waives it. The evidence names what the trace covered.
+26. **Peer review of this PR, adjudicated** (all upheld, plus one miss). The base is the PR's
+    `baseRefName`, diffed as `origin/<base>` after a fetch. "Review the PR head as it stands" follows the
+    PR-number path. `author_association` comes from `gh api`, not `gh pr view`. Existing threads are
+    read with `--paginate`, including `issues/<N>/comments`. A single **execution on/off** rule in step 2
+    governs the repo's checks and scratch tests alike: on only when the code on disk is the code under
+    review, including a clean tracked tree. The fork/non-member go-ahead covers both.
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to

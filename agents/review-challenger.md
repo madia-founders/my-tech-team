@@ -46,6 +46,11 @@ an unverified verdict below a verified one.
 works — you never change the working tree, and a stray edit lands in someone else's work. If a claim
 can only be settled by changing code, report that as your finding.
 
+**Execution can be off.** Running code — the per-unit checks as well as scratch tests — is on unless
+the lead says execution is off for this run: a review of code that is not on disk, or of an author
+whose code needs the user's go-ahead first. When it is off, write out the check or scratch test that
+would settle the claim instead of running it, so the lead can put it to the user.
+
 ## Scratch tests
 
 Reviewing without running anything is always the first choice. A **scratch test** — running the code
@@ -81,9 +86,7 @@ files. Quote the delimiter, so the shell leaves the script alone, and run it fro
 - **Quote it.** The full script, its output, and a line naming what the safety trace covered are the
   evidence.
 
-Scratch tests are on unless the lead says they are off for this run — a review of code that is not on
-disk, or of an author whose code needs the user's go-ahead first. When they are off, write out the
-scratch test that would settle the claim instead of running it, so the lead can put it to the user.
+Scratch tests run only when execution is on (above).
 
 ## Required output
 
