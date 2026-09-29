@@ -101,8 +101,9 @@ Record the profile as a short **numbered block**, one line per fact:
 4. **Base branch and PR tool.** The base from `origin/HEAD` (default `main`); `gh` when the remote is
    GitHub and `gh` is authenticated, otherwise none.
 5. **Hazards.** Suites that cannot run concurrently (shared ports, fixed temp files, a single test
-   database), known-flaky suites and how to re-run one test alone, and lockfile rules (which
-   commands rewrite a shared lockfile).
+   database), known-flaky suites and how to re-run one test alone, lockfile rules (which
+   commands rewrite a shared lockfile), and **every check that carries an external cost** — metered
+   queries (BigQuery and the like), LLM calls, paid APIs, anything the repo flags as costly.
 6. **Plans location.** The repo's own place for implementation plans if it has one; otherwise
    `plans/`.
 7. **Definition of done and review mandates.** Everything the repo's instructions require before a
@@ -221,13 +222,17 @@ green** — reviewers should be reading working code, not broken WIP.
    but settle them with command output, not with whichever side argues better. A verdict backed by a
    failing test, a `grep` over the caller set, or a `git log` proving the defect pre-dates the branch
    beats one backed by reasoning alone. When neither side ran a command and one would settle it, **run
-   it yourself** before deciding. Fall back to "apply the fix when genuinely in doubt" only for claims
-   no command can settle. List every dropped finding — and the evidence that dropped it — in your
-   final report.
+   it yourself** before deciding — a static command first, a [scratch test](#scratch-tests) only when
+   none settles it — unless it carries an external cost (the profile's hazards line) or its cost is
+   unclear: then **halt** and put the command and its cost to the user to greenlight or reject. A free
+   dry run that only estimates the cost (`bq query --dry_run`) is fine. Fall back to "apply the fix
+   when genuinely in doubt" only for claims no command can settle. List every dropped finding — and
+   the evidence that dropped it — in your final report.
 4. Route each surviving finding to **whichever agent wrote that code**, by resuming it with
    `SendMessage` so it fixes its own work with full context. For findings outside any implementer's
    unit, that means you if you made the change inline, or `commons-owner` if you delegated it —
-   resume it rather than patching over its work yourself.
+   resume it rather than patching over its work yourself. A finding a scratch test confirmed is fixed
+   with that scratch test turned into a regression test in the repo's own suite.
 5. Re-run the gate suite, commit the fixes, then send the fix diff back to `code-reviewer` for a
    focused re-check. **Cap at 2 rounds**, then escalate to the user.
 
@@ -292,6 +297,44 @@ Two harness facts this protocol depends on, both verified — do not design arou
   a halt, not a ping.
 - **The "other agents active" roster is a stale spawn-time snapshot and under-reports.** Address agents
   by the name you gave them at spawn; do not trust the roster for discovery.
+
+## Scratch tests
+
+Reviewing without running anything is always the first choice. A **scratch test** — running the code
+under review to watch it misbehave — is the last resort, only for a claim that reading the code, a
+`grep` over its callers, `git log`, and the repo's existing checks cannot settle.
+
+A scratch test is never a file. It is a script piped to the interpreter through a heredoc:
+
+```sh
+node --input-type=module <<'PROBE'
+import { applyDiscount } from './src/pricing.js';
+for (const cart of [[], [{ price: 0 }]]) console.log(JSON.stringify(cart), '→', applyDiscount(cart));
+PROBE
+```
+
+Python works the same way: `PYTHONDONTWRITEBYTECODE=1 python3 - <<'PROBE'`, so it writes no `.pyc`
+files. Quote the delimiter, so the shell leaves the script alone, and run it from the repo root.
+
+- **Confirm, never hunt.** Write one only to confirm or refute a finding already formed. It proves how
+  the code behaves, not that the input can reach it — a caller trace still does that.
+- **Safety trace — a mandatory gate.** Before running it, trace every line it will execute: the script
+  itself, the top-level code of every module it imports, transitively — importing runs it — and the
+  full call path of every function it calls. Run it only if the trace proves every operation safe: no
+  database write, no file write or delete, no network call, no process spawn, no credential read.
+  Anything you cannot trace to the end — dynamic dispatch, `eval`, a native addon, a path that
+  depends on the environment — fails the gate, and the claim stays unverified. No go-ahead, from
+  anyone, waives this gate.
+- **Pure logic only.** Import only the code under review and call it: no build step, fixtures or
+  mocks.
+- **The cost rule holds** (step 10.3).
+- **Two attempts.** If it does not run cleanly in two (module format, path aliases, a missing build),
+  stop: the claim stays unverified.
+- **Quote it.** The full script, its output, and a line naming what the safety trace covered are the
+  evidence.
+
+In this pipeline scratch tests are always on: every line under review is on disk and was written by
+this team. `code-reviewer` and `review-challenger` follow the same rules from their own instructions.
 
 ## Definition of done
 
