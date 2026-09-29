@@ -75,6 +75,25 @@ comments.
     `state` is not `OPEN` counts as no PR — `gh pr view` also returns merged and closed ones. A dirty
     tracked tree is reviewed as it stands, uncommitted lines included (`git diff HEAD`), and nothing
     goes to GitHub: kept findings go to Conductor comments, or the list is the deliverable.
+30. **A greenlit check re-opens the keep-list gate.** After it runs, the lead shows the finding's new
+    verdict and halts again for keep or drop on it, even if the first reply kept it. Posting waits
+    until every finding has the user's decision.
+31. **A dirty tree is a current-branch notion.** A PR-number target never has one, so uncommitted
+    local work never blocks its pending review, reaches the challenger, or shows in the report.
+32. **One run card, decided in step 2.** Step 2 detects tools, target, base, tree, head and trust in
+    that order, then reads a card off one case table: Code from, Diff, Execution, Profile from,
+    Threads from, Output. Steps 3–8 and the challenger read the card; none re-tests `gh`, the tree or
+    the PR. The card is shown with the keep-list. Execution rules are unchanged (28, 29).
+33. **Checked in step 2, not later.** `gh` usability (`gh repo view`) and Conductor's tools are
+    detected first; a PR number without `gh` stops. A pending review of yours is found before the
+    review starts, and halts it then (supersedes assumption C's timing); step 8 still halts if one
+    appears in between.
+34. **A PR-number target that is not `OPEN` stops**, with the reason: its diff against today's base is
+    no longer the PR's.
+35. **The profile is read from the card's Profile from**: the code's own source, except an untrusted
+    (fork or non-member) PR, read against `origin/<base>` so it cannot rewrite its own review's rules.
+    "Base branch and PR tool" leaves the profile for the card, so intent and existing threads are now
+    profile lines 5 and 6 (supersedes decision 22's numbering).
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to
