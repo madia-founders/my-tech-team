@@ -67,6 +67,10 @@ comments.
     or non-member author — each check runs only after the user greenlights it), **On**. The
     challenger is told "on" only for On. On a PR-number target every history command names the head
     SHA (`git log -S<text> origin/<base>..<sha>`, `git diff origin/<base>...<sha>`).
+28. **Two execution states, not three** (supersedes the Go-ahead state in 24 and 27). A fork or
+    non-member author is **Off**, like code not on disk: no check and no scratch test runs, whoever
+    asks. On = current branch, `HEAD` = PR head, clean tracked tree, trusted author. `Check:` lines are
+    offered only for costly checks while On.
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to

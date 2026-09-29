@@ -66,19 +66,19 @@ The diff is `git diff origin/<base>...<head>` — always the remote-tracking bas
 that may be behind. If it is empty, say so and stop. Review committed work only: a dirty tree is
 ignored, and you say so in the report, because uncommitted lines are not in the PR.
 
-**Execution.** Running code — the repo's checks as well as [scratch tests](#scratch-tests) — is in
-exactly one of three states for the run:
+**Execution.** Running code — the repo's checks as well as [scratch tests](#scratch-tests) — is **On**
+for the run only when every one of these holds:
 
-- **Off** — the code on disk is not the code under review. It is the code under review only when all
-  of these hold: the current-branch target, `HEAD` equal to the PR head when there is a PR, and a
-  clean tracked tree (`git status --porcelain --untracked-files=no` prints nothing). When off, nothing
-  runs, not even with a go-ahead — it would run against the wrong code. A claim only running code could settle stays
-  unverified.
-- **Go-ahead** — the code on disk is the code under review, but the PR comes from a fork
-  (`isCrossRepository`) or from an author whose `author_association` is not `OWNER`, `MEMBER` or
-  `COLLABORATOR`. Running code runs the author's code on this machine, so each check or scratch test
-  runs only after the user greenlights its `Check:` line (step 7).
-- **On** — the code on disk is the code under review, and the author is trusted.
+- the target is the current branch;
+- `HEAD` equals the PR head, when there is a PR;
+- the tracked tree is clean (`git status --porcelain --untracked-files=no` prints nothing);
+- the PR, when there is one, is not from a fork (`isCrossRepository` is false) and its author's
+  `author_association` is `OWNER`, `MEMBER` or `COLLABORATOR`.
+
+Otherwise execution is **Off**, and nothing runs — no check, no scratch test, with or without anyone's
+go-ahead. Code that is not on disk would be the wrong code; a fork or non-member author's code is
+untrusted, and running it on this machine is a risk this skill never takes. A claim only running code
+could settle stays unverified.
 
 ### 3. Discover the project profile
 
@@ -164,9 +164,8 @@ Spawn `my-tech-team:review-challenger`, named `review-challenger`, in the foregr
 carries your numbered findings; the target — `origin/<base>`, the head SHA, and, whenever the head is
 not the working tree, that every command names that SHA (`git show <sha>:<path>`,
 `git grep <pattern> <sha>`, `git log -S<text> origin/<base>..<sha>`, `git diff origin/<base>...<sha>`);
-whether execution is on — **on only when step 2's state is On**, and off for both Off and Go-ahead,
-so it runs neither checks nor scratch tests on code the user has not cleared; and the profile block
-verbatim, intent included.
+whether execution is On or Off (step 2) — Off means it runs neither checks nor scratch tests; and the
+profile block verbatim, intent included.
 
 ### 6. Adjudicate
 
@@ -174,14 +173,15 @@ Contested findings are yours to settle — but settle them **on evidence**, not 
 argues better. A verdict backed by command output — a `grep` over the caller set, a `git log -S`
 proving the defect pre-dates the branch, a failing check — beats one backed by reasoning alone. When
 neither side ran a command and one would settle it, **run it yourself**: a static command first, a
-[scratch test](#scratch-tests) only when none settles it. A check or scratch test runs only when step
-2's state is On, or Go-ahead with the user's greenlight.
+[scratch test](#scratch-tests) only when none settles it. A check or scratch test runs only when
+execution is On (step 2).
 
 **Never run a check that carries an external cost** — anything the profile's hazards line marks as
 costly (metered queries, LLM calls, paid APIs), or whose cost is unclear. When such a check would
-settle a finding and execution is not Off, keep the finding and put the command and its cost to the
-user in step 7, to greenlight or reject; when execution is Off, the finding stays unverified. A free dry run that only estimates the cost — `bq query --dry_run` for
-BigQuery, say — is fine, and gives the estimate.
+settle a finding and execution is On, keep the finding and put the command and its cost to the user
+in step 7, to greenlight or reject; when execution is Off, the finding stays unverified. A free dry
+run that only estimates the cost — `bq query --dry_run` for BigQuery, say — is fine, and gives the
+estimate.
 
 The challenger's misses go through the same gate as your findings. When a finding is genuinely in
 doubt after all that, **keep it** and mark it unverified: the user decides, not you.
@@ -199,11 +199,10 @@ Give the survivors as a **numbered list**, most severe first, each exactly:
 Fix: <how to fix it, one or two lines>
 ```
 
-Add "(unverified)" to the headline of any finding kept in doubt. When execution is not Off (step 2)
-and a costly check (step 6) or a check or scratch test awaiting a go-ahead would settle it, add a
-fourth line —
-`Check: <command> — <estimated cost, "cost unknown", or why it needs a go-ahead>` — and run it only
-if the user greenlights it in their reply; then re-adjudicate that finding and show the user its new
+Add "(unverified)" to the headline of any finding kept in doubt. When execution is On (step 2) and
+only a costly check (step 6) would settle it, add a fourth line —
+`Check: <command> — <estimated cost, or "cost unknown">` — and run it only if the user greenlights it
+in their reply; then re-adjudicate that finding and show the user its new
 verdict before step 8. Then a short **Dropped** tail, one line per dropped finding:
 `<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Then one line saying where kept findings will
 go: a pending review on PR #N, Conductor diff comments, or nowhere (and why). Mention a dirty tree,
@@ -273,5 +272,5 @@ files. Quote the delimiter, so the shell leaves the script alone, and run it fro
 - **Quote it.** The full script, its output, and a line naming what the safety trace covered are the
   evidence.
 
-**When they may run.** Only when step 2's execution state is On, or Go-ahead with the user's
-greenlight — never when it is Off.
+**When they may run.** Only when execution is On (step 2). When it is Off — code not on disk, or a
+fork or non-member author — never, whoever asks.

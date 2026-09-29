@@ -48,9 +48,9 @@ works — you never change the working tree, and a stray edit lands in someone e
 can only be settled by changing code, report that as your finding.
 
 **Execution can be off.** Running code — the per-unit checks as well as scratch tests — is on unless
-the lead says execution is off for this run: a review of code that is not on disk, or of an author
-whose code needs the user's go-ahead first. When it is off, write out the check or scratch test that
-would settle the claim instead of running it; the lead decides whether it can be put to the user.
+the lead says execution is off for this run: a review of code that is not on disk, or of a fork or
+non-member author's code. When it is off, run nothing — no check, no scratch test — and say which
+claims only running code could settle; they stay unverified.
 
 ## Scratch tests
 
