@@ -94,6 +94,12 @@ comments.
     (fork or non-member) PR, read against `origin/<base>` so it cannot rewrite its own review's rules.
     "Base branch and PR tool" leaves the profile for the card, so intent and existing threads are now
     profile lines 5 and 6 (supersedes decision 22's numbering).
+36. **Fourth peer review** (both upheld). Trust is checked on every run, not only with an open PR: a
+    current branch without one is looked up by `HEAD`'s SHA (`gh pr list --state all --search`), so a
+    fork PR checked out with plain git, or a closed one, is still untrusted. Without `gh`, the lead
+    asks whether the commits are the user's own or a trusted teammate's; unconfirmed is untrusted. An
+    untrusted author changes every row of the case table. A branch behind its PR head is pulled, not
+    pushed, before re-classifying.
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to
