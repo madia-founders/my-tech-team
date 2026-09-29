@@ -71,6 +71,10 @@ comments.
     non-member author is **Off**, like code not on disk: no check and no scratch test runs, whoever
     asks. On = current branch, `HEAD` = PR head, clean tracked tree, trusted author. `Check:` lines are
     offered only for costly checks while On.
+29. **Third peer review** (supersedes "a dirty tree is ignored"). On the current branch, a PR whose
+    `state` is not `OPEN` counts as no PR — `gh pr view` also returns merged and closed ones. A dirty
+    tracked tree is reviewed as it stands, uncommitted lines included (`git diff HEAD`), and nothing
+    goes to GitHub: kept findings go to Conductor comments, or the list is the deliverable.
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to

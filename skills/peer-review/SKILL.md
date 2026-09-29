@@ -44,13 +44,15 @@ This skill runs only in plan mode — it is what keeps the review read-only.
 ### 2. Resolve the target
 
 **No argument — the current branch.** Look for its PR:
-`gh pr view --json number,url,headRefOid,baseRefName,body,isCrossRepository`. The base is the PR's
-`baseRefName`; with no PR, the repo's default branch (`git symbolic-ref refs/remotes/origin/HEAD`;
+`gh pr view --json number,url,state,headRefOid,baseRefName,body,isCrossRepository`. It also returns a
+merged or closed PR for the branch: one whose `state` is not `OPEN` counts as no PR. The base is the
+PR's `baseRefName`; with no PR, the repo's default branch (`git symbolic-ref refs/remotes/origin/HEAD`;
 `main` if that is unset). Run `git fetch origin <base>` so `origin/<base>` is current. When a PR
-exists, compare `HEAD` with its `headRefOid`. If they differ — local commits not pushed, or the branch
-behind its remote — **halt and ask**: push first, or review the PR head as it stands. Comments anchor
-to the PR head, so reviewing anything else produces comments on lines the PR does not contain.
-Reviewing the PR head as it stands means handling it exactly like a PR-number target, below.
+exists and the tracked tree is clean, compare `HEAD` with its `headRefOid`. If they differ — local
+commits not pushed, or the branch behind its remote — **halt and ask**: push first, or review the PR
+head as it stands. Comments anchor to the PR head, so reviewing anything else produces comments on
+lines the PR does not contain. Reviewing the PR head as it stands means handling it exactly like a
+PR-number target, below.
 
 **A PR number.** `gh pr view <N> --json` with the same fields; the base is its `baseRefName`. Then
 `git fetch origin pull/<N>/head <base>` — this updates `FETCH_HEAD` and `origin/<base>` only; create
@@ -63,8 +65,10 @@ On a PR, read the author's standing with
 `gh api repos/{owner}/{repo}/pulls/<N> --jq .author_association` — `gh pr view` has no such field.
 
 The diff is `git diff origin/<base>...<head>` — always the remote-tracking base, never a local branch
-that may be behind. If it is empty, say so and stop. Review committed work only: a dirty tree is
-ignored, and you say so in the report, because uncommitted lines are not in the PR.
+that may be behind. On the current branch with a dirty tree — `git status --porcelain
+--untracked-files=no` prints something — it also takes in `git diff HEAD`: the uncommitted lines are
+reviewed as they stand. They are not in any PR, so nothing from this run goes to GitHub; step 8
+treats it as having no usable PR. If the diff is empty, say so and stop.
 
 **Execution.** Running code — the repo's checks as well as [scratch tests](#scratch-tests) — is **On**
 for the run only when every one of these holds:
@@ -102,8 +106,9 @@ Record a short **numbered block**, one line per fact:
    so: step 4 skips its conformance check, and the report mentions it.
 7. **Existing threads.** On a PR, with `gh api --paginate` (a single page stops at 30 items):
    `repos/{owner}/{repo}/pulls/<N>/comments` (inline), `.../pulls/<N>/reviews` (review bodies), and
-   `.../issues/<N>/comments` (the conversation). Without one, `GetDiffComments` if Conductor's tools are available. Note
-   whether you already have a **pending** review on the PR — GitHub allows only one per reviewer.
+   `.../issues/<N>/comments` (the conversation). With no PR, or a dirty tree, also `GetDiffComments`
+   if Conductor's tools are available. Note whether you already have a **pending** review on the PR —
+   GitHub allows only one per reviewer.
 
 ### 4. Review
 
@@ -164,8 +169,9 @@ Spawn `my-tech-team:review-challenger`, named `review-challenger`, in the foregr
 carries your numbered findings; the target — `origin/<base>`, the head SHA, and, whenever the head is
 not the working tree, that every command names that SHA (`git show <sha>:<path>`,
 `git grep <pattern> <sha>`, `git log -S<text> origin/<base>..<sha>`, `git diff origin/<base>...<sha>`);
-whether execution is On or Off (step 2) — Off means it runs neither checks nor scratch tests; and the
-profile block verbatim, intent included.
+on a dirty tree, that the uncommitted lines (`git diff HEAD`) are under review too, so `git log` alone
+never proves one pre-dates the change; whether execution is On or Off (step 2) — Off means it runs
+neither checks nor scratch tests; and the profile block verbatim, intent included.
 
 ### 6. Adjudicate
 
@@ -213,12 +219,13 @@ edits to wording.
 
 ### 8. Post
 
-**A PR, and `gh` in the profile.** If you already have a pending review on that PR, halt and ask the
-user to submit or delete it — do not add to it. Otherwise write a two-column **summary table** into
-the plan file: `file:line` | comment. Each comment is the issue and the fix only, with the user's
-edits applied — no title, severity or likelihood. Mark a row `(review body)` when its line is outside
-the diff hunks: GitHub rejects inline comments there. Call `ExitPlanMode`. On approval, create the
-review in one call, with the JSON piped in through a heredoc rather than a file:
+**A PR, `gh` in the profile, and a clean tree.** If you already have a pending review on that PR,
+halt and ask the user to submit or delete it — do not add to it. Otherwise write a two-column
+**summary table** into the plan file: `file:line` | comment. Each comment is the issue and the fix
+only, with the user's edits applied — no title, severity or likelihood. Mark a row `(review body)`
+when its line is outside the diff hunks: GitHub rejects inline comments there. Call `ExitPlanMode`.
+On approval, create the review in one call, with the JSON piped in through a heredoc rather than a
+file:
 
 ```sh
 gh api -X POST repos/{owner}/{repo}/pulls/<N>/reviews --input - <<'REVIEW'
@@ -231,9 +238,10 @@ and `comments` one `{path, line, side, body}` per inline row — `side` is `RIGH
 lines, `LEFT` for deleted ones. **Omit `event`**, so the review stays pending. Hand back the review's
 URL and "submit it in GitHub when you are ready".
 
-**No usable PR, Conductor's `DiffComment` tool available, and the target is the current branch.** Post
-the kept findings straight after the keep-list — no table, no `ExitPlanMode` — one plain-text comment
-each, issue and fix only. If plan mode blocks the tool, report that and stop.
+**No usable PR (none, no `gh`, or a dirty tree), Conductor's `DiffComment` tool available, and the
+target is the current branch.** Post the kept findings straight after the keep-list — no table, no
+`ExitPlanMode` — one plain-text comment each, issue and fix only. If plan mode blocks the tool,
+report that and stop.
 
 **Otherwise** stop: the numbered list was the deliverable.
 
