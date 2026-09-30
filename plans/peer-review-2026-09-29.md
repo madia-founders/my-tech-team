@@ -107,13 +107,19 @@ comments.
     keep-list").
 38. **One gate, `ExitPlanMode`; one list** (supersedes 9, 11, 19 and 30). The keep-list halt and the
     summary table are gone. Step 7 writes a single report into the plan file: **Post** (verified
-    findings), **Needs your call** (unverified, or awaiting a costly check) and **Dropped**. Each
+    findings), **Needs your call** (unverified, or awaiting a costly check) and **Dropped**. It ends
+    with `Approved findings go to: …` (supersedes 37's `Kept findings go to`). Each
     finding's quoted issue and fix are the comment, posted word for word; `(review body)` sits in its
     headline. Approval posts **Post** only; feedback ("drop 1", "reword 2", "add 3", "run check 4")
     revises the plan and resubmits it. Conductor comments take the same gate; the list-only path just
     stops. After posting, **Needs your call** is repeated. "add N" then adds to the review this run
     created (GraphQL thread, or appended body) and never recreates it; any other pending review is
     still never touched.
+39. **Fifth peer review** (all three upheld). "add N" reads the review's state first: while it is
+    `PENDING` the finding is added to it; once the user has submitted it, editing it would publish
+    the change, so a new pending review holds the finding and later adds go to that one. After
+    posting, "run check N" only reports: a verified finding stays in **Needs your call** until the
+    user replies "add N".
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to

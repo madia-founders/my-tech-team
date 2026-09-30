@@ -323,16 +323,21 @@ Then **repeat the Needs your call section** in full, with its replies — "add 3
 does not go unnoticed.
 
 **After posting.** Plan mode is off, and the user's reply is itself the approval: no `ExitPlanMode`.
-"run check N" runs under the same rules as in step 7. "add N" adds that finding to **the review this
-run created** — never to any other pending review, and never by deleting and recreating it, which
-would lose any edits the user made in GitHub:
+"run check N" runs under the same rules as in step 7, but only reports: show the user the finding's
+new verdict, and keep a verified finding under **Needs your call** until the user replies "add N" (a
+rejected one moves to **Dropped**). "add N" posts that finding. For Conductor, post one more diff
+comment. On GitHub it goes to **the review this run created** — never to any other pending review,
+and never by deleting and recreating it, which would lose any edits the user made in GitHub. Read
+its state first, with `gh api repos/{owner}/{repo}/pulls/<N>/reviews/<id> --jq .state`:
 
-- An inline finding becomes a thread on the review:
+- **`PENDING`.** An inline finding becomes a thread on the review:
   `gh api graphql -f query='mutation($id:ID!,$path:String!,$line:Int!,$side:DiffSide!,$body:String!){addPullRequestReviewThread(input:{pullRequestReviewId:$id,path:$path,line:$line,side:$side,body:$body}){thread{id}}}' -f id=<node_id> -f path=<path> -F line=<line> -f side=<RIGHT|LEFT> -f body=<comment>`.
-- A `(review body)` finding is appended to the review's body: read the current body with
+  A `(review body)` finding is appended to the review's body: read the current body with
   `gh api repos/{owner}/{repo}/pulls/<N>/reviews/<id> --jq .body`, then
   `gh api -X PUT repos/{owner}/{repo}/pulls/<N>/reviews/<id> -f body=<current body + the finding>`.
-- For Conductor, post one more diff comment.
+- **Anything else** — the user submitted it. Editing it would publish the change at once, so create
+  a new pending review holding the finding, exactly as above, and keep its `id` and `node_id`: it is
+  now the review this run created, and later adds go to it.
 
 Then repeat whatever is still in **Needs your call**.
 
