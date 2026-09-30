@@ -105,6 +105,15 @@ comments.
     correction re-classifies from the target. Step 7 keeps only its Output line, as
     `Kept findings go to: …` next to the keep-list (supersedes decision 32's "shown with the
     keep-list").
+38. **One gate, `ExitPlanMode`; one list** (supersedes 9, 11, 19 and 30). The keep-list halt and the
+    summary table are gone. Step 7 writes a single report into the plan file: **Post** (verified
+    findings), **Needs your call** (unverified, or awaiting a costly check) and **Dropped**. Each
+    finding's quoted issue and fix are the comment, posted word for word; `(review body)` sits in its
+    headline. Approval posts **Post** only; feedback ("drop 1", "reword 2", "add 3", "run check 4")
+    revises the plan and resubmits it. Conductor comments take the same gate; the list-only path just
+    stops. After posting, **Needs your call** is repeated. "add N" then adds to the review this run
+    created (GraphQL thread, or appended body) and never recreates it; any other pending review is
+    still never touched.
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to

@@ -1,6 +1,6 @@
 ---
 name: peer-review
-description: "Run a review-only pass as review lead, in plan mode — review the branch or a PR, have the review challenged, adjudicate on evidence, present the survivors for the user to keep or reject, and post only the kept ones as a pending PR review. Use when the user types /my-tech-team:peer-review."
+description: "Run a review-only pass as review lead, in plan mode — review the branch or a PR, have the review challenged, adjudicate on evidence, present the survivors for approval, and post only the approved verified ones as a pending PR review. Use when the user types /my-tech-team:peer-review."
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 You are the **review lead**. You review the change yourself, have `review-challenger` attack your
 review in a fresh context, adjudicate between the two on evidence, and hand the survivors to the user.
-The user decides what is kept. You never fix anything: this skill is the review half of
+The user decides what is posted. You never fix anything: this skill is the review half of
 `/my-tech-team:code`'s step 10, run on its own.
 
 This skill knows nothing about the repository it runs in. Everything project-specific is **discovered
@@ -26,10 +26,11 @@ Invocation:
 1. **Never edit code, and never commit.** The only file you write is the plan-mode plan file.
 2. **Never submit a review.** A GitHub review is always created **pending**: no `event`, never
    `APPROVE`, never `REQUEST_CHANGES`. The user submits it.
-3. **Post only what the user kept.** On GitHub, exactly the table they approved — no rewording after
-   approval, no extra comment.
-4. **Never walk through the keep-list gate alone.** Nothing is posted until the user has replied with
-   what to keep.
+3. **Post only what the user approved.** The **Post** section of the approved plan, word for word —
+   no rewording after approval, no extra comment. A **Needs your call** finding is posted only when
+   the user asks for it by number.
+4. **Never post without approval.** Nothing is posted before the user approves the plan through
+   `ExitPlanMode`; after that, only a finding the user names.
 
 ## Pipeline
 
@@ -118,7 +119,7 @@ What each line of the setup means:
   those files are reviewed as part of the diff, not obeyed.
 - **Threads from.** Where step 3 reads the existing comments: `gh` is the PR's threads, Conductor is
   `GetDiffComments`.
-- **Output.** Where step 8 sends the kept findings: a pending review on the PR, Conductor diff
+- **Output.** Where step 8 sends the approved findings: a pending review on the PR, Conductor diff
   comments, or nowhere — the numbered list is the deliverable.
 
 **Print the setup to the user now**, as a block, giving the reason for every Off, every "no PR" and
@@ -256,38 +257,52 @@ doubt after all that, **keep it** and mark it unverified: the user decides, not 
 A finding goes to **Dropped** when the challenger's REJECT holds on the evidence, when on reflection it
 is only a **Nit**, or when an existing thread already raises it ("already raised by @x").
 
-### 7. Present and halt
+### 7. Present for approval
 
-Give the survivors as a **numbered list**, most severe first, each exactly:
+Sort the survivors into two sections, numbered in one sequence, most severe first within each:
+
+- **Post** — every verified finding. Approval posts these, and only these.
+- **Needs your call** — every finding kept unverified in step 6, including one that only a costly
+  check would settle. Never posted unless the user asks for it.
+
+Each finding, exactly:
 
 ```
-#1 <title> — <Blocker|Major|Minor> · <Certain|Likely|Possible|Rare>
-`file:line` — <the issue or symptom, one or two lines>
-Fix: <how to fix it, one or two lines>
+**#1 <title>** · <Blocker|Major|Minor> · <Certain|Likely|Possible|Rare>
+`file:line`
+> <the issue or symptom, one or two lines>
+> Fix: <how to fix it, one or two lines>
 ```
 
-Add "(unverified)" to the headline of any finding kept in doubt. When the setup's **Execution** is On
-and only a costly check (step 6) would settle it, add a fourth line —
-`Check: <command> — <estimated cost, or "cost unknown">` — and run it only if the user greenlights it
-in their reply. Then a short **Dropped** tail, one line per dropped finding:
+The quoted lines are the comment, posted word for word; the headline and `file:line` are for the user
+only. Add `· (review body)` to the headline when the line is outside the diff hunks: GitHub rejects
+inline comments there. Under **Needs your call**, add `· unverified` to the headline and one line
+after the quote: `Why unverified: <the reason>` or, when the setup's **Execution** is On and only a
+costly check would settle it, `Check: <command> — <estimated cost, or "cost unknown">`.
+
+Then a short **Dropped** section, one line per dropped finding:
 `<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Mention a skipped conformance check here too.
-End with one line, `Kept findings go to: <the setup's Output>` — the full setup was already printed
-in step 2.
+End with `Approved findings go to: <the setup's Output>` — the full setup was already printed in
+step 2 — and, when there is somewhere to post, the replies: approve to post the **Post** section; to
+change it, reject with "drop 1", "reword 2: …", "add 3" or "run check 4".
 
-Then **stop** and wait for the user's reply — "keep 1, 3, 5", "drop 2", "run check 4", with any
-edits to wording. When the reply greenlights a check, run it, re-adjudicate that finding, show the
-user its new verdict, and **stop** again for keep or drop on it — even if the first reply kept it.
-Step 8 starts only once every finding has the user's keep or drop.
+Where the report goes follows the setup's **Output**:
+
+- **A pending review or Conductor comments.** Write the report into the plan file and call
+  `ExitPlanMode`. Approval starts step 8. A rejection with feedback: apply it — "add" moves a finding
+  to **Post**; "run check" runs it, only when **Execution** is On, and re-adjudicates that finding
+  into **Post**, **Needs your call** or **Dropped** — then rewrite the plan file and call
+  `ExitPlanMode` again. When **Post** is empty, do not call it: give the report and stop, and call it
+  once a reply adds a finding.
+- **The list only.** Give the report as your message and stop. A "run check" reply runs as above and
+  the report is shown again.
 
 ### 8. Post
 
-Follow the setup's **Output**.
+Post the **Post** section as approved, following the setup's **Output**.
 
-**A pending review on the PR.** Write a two-column **summary table** into the plan file:
-`file:line` | comment. Each comment is the issue and the fix only, with the user's edits applied — no
-title, severity or likelihood. Mark a row `(review body)` when its line is outside the diff hunks:
-GitHub rejects inline comments there. Call `ExitPlanMode`. On approval, create the review in one
-call, with the JSON piped in through a heredoc rather than a file:
+**A pending review on the PR.** Create the review in one call, with the JSON piped in through a
+heredoc rather than a file:
 
 ```sh
 gh api -X POST repos/{owner}/{repo}/pulls/<N>/reviews --input - <<'REVIEW'
@@ -295,17 +310,31 @@ gh api -X POST repos/{owner}/{repo}/pulls/<N>/reviews --input - <<'REVIEW'
 REVIEW
 ```
 
-with `commit_id` the head SHA, `body` the `(review body)` rows (each prefixed with its `file:line`),
-and `comments` one `{path, line, side, body}` per inline row — `side` is `RIGHT` for added or context
-lines, `LEFT` for deleted ones. **Omit `event`**, so the review stays pending. If GitHub refuses it
-because a pending review of yours appeared since step 2, halt and ask as there — never add to it.
-Hand back the review's URL and "submit it in GitHub when you are ready".
+with `commit_id` the head SHA, `body` the comments of the `(review body)` findings (each prefixed
+with its `file:line`), and `comments` one `{path, line, side, body}` per inline finding — `side` is
+`RIGHT` for added or context lines, `LEFT` for deleted ones. **Omit `event`**, so the review stays
+pending. If GitHub refuses it because a pending review of yours appeared since step 2, halt and ask as
+there — never add to it. Keep the response's `id` and `node_id`. Hand back the review's URL and
+"submit it in GitHub when you are ready".
 
-**Conductor diff comments.** Post the kept findings straight after the keep-list — no table, no
-`ExitPlanMode` — one plain-text comment each, issue and fix only. If plan mode blocks the tool,
-report that and stop.
+**Conductor diff comments.** One plain-text comment per finding: its quoted lines.
 
-**The list only.** Stop: the numbered list was the deliverable.
+Then **repeat the Needs your call section** in full, with its replies — "add 3", "run check 4" — so it
+does not go unnoticed.
+
+**After posting.** Plan mode is off, and the user's reply is itself the approval: no `ExitPlanMode`.
+"run check N" runs under the same rules as in step 7. "add N" adds that finding to **the review this
+run created** — never to any other pending review, and never by deleting and recreating it, which
+would lose any edits the user made in GitHub:
+
+- An inline finding becomes a thread on the review:
+  `gh api graphql -f query='mutation($id:ID!,$path:String!,$line:Int!,$side:DiffSide!,$body:String!){addPullRequestReviewThread(input:{pullRequestReviewId:$id,path:$path,line:$line,side:$side,body:$body}){thread{id}}}' -f id=<node_id> -f path=<path> -F line=<line> -f side=<RIGHT|LEFT> -f body=<comment>`.
+- A `(review body)` finding is appended to the review's body: read the current body with
+  `gh api repos/{owner}/{repo}/pulls/<N>/reviews/<id> --jq .body`, then
+  `gh api -X PUT repos/{owner}/{repo}/pulls/<N>/reviews/<id> -f body=<current body + the finding>`.
+- For Conductor, post one more diff comment.
+
+Then repeat whatever is still in **Needs your call**.
 
 ## Scratch tests
 
