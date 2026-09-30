@@ -100,6 +100,11 @@ comments.
     asks whether the commits are the user's own or a trusted teammate's; unconfirmed is untrusted. An
     untrusted author changes every row of the case table. A branch behind its PR head is pulled, not
     pushed, before re-classifying.
+37. **The run card is renamed the review setup, and shown as soon as it is decided.** Step 2 prints
+    it, titled `Review setup`, without halting, so the user can steer while the review runs; a
+    correction re-classifies from the target. Step 7 keeps only its Output line, as
+    `Kept findings go to: …` next to the keep-list (supersedes decision 32's "shown with the
+    keep-list").
 
 Assumptions (mine, not yours — object at approval):
 - A. If plan mode blocks `DiffComment` (decision 19), report it and stop. No automatic fallback to

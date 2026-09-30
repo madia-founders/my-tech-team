@@ -14,7 +14,7 @@ The user decides what is kept. You never fix anything: this skill is the review 
 This skill knows nothing about the repository it runs in. Everything project-specific is **discovered
 at the start of every run** (step 3 below) and handed to the challenger as the **project profile**.
 Everything that differs between runs — the target, where its code is read from, whether code may
-run, where findings go — is decided once, in step 2, on the **run card**.
+run, where findings go — is decided once, in step 2, as the **review setup**.
 
 Invocation:
 
@@ -46,7 +46,7 @@ This skill runs only in plan mode — it is what keeps the review read-only.
 ### 2. Classify the run
 
 Everything that differs from one run to the next is decided here, once, and written down as the
-**run card**. Later steps read the card; none of them re-tests `gh`, the tree or the PR.
+**review setup**. Later steps read the setup; none of them re-tests `gh`, the tree or the PR.
 
 **Detect, in this order:**
 
@@ -87,7 +87,7 @@ Everything that differs from one run to the next is decided here, once, and writ
    **halt and ask** whether every commit on the branch is the user's own or a trusted teammate's;
    unless they confirm it, the author is untrusted.
 
-**Then read the card off this table.** "PR" means an open PR, as item 2 defines it.
+**Then read the setup off this table.** "PR" means an open PR, as item 2 defines it.
 
 | Case | Code from | Execution | Profile from | Threads from | Output |
 |---|---|---|---|---|---|
@@ -100,7 +100,7 @@ An untrusted author changes two cells of any row: Execution is Off, and the prof
 `origin/<base>`. Conductor counts only when its tools are available: without them it drops out
 of Threads from, and Output is the list.
 
-What each line of the card means:
+What each line of the setup means:
 
 - **Code from.** Every read, search and history command goes through it. A head SHA is never the
   working tree: read files with `git show <sha>:<path>`, search with `git grep <pattern> <sha>`, and
@@ -121,9 +121,11 @@ What each line of the card means:
 - **Output.** Where step 8 sends the kept findings: a pending review on the PR, Conductor diff
   comments, or nowhere — the numbered list is the deliverable.
 
-Write the card as a block, giving the reason for every Off, every "no PR" and every list-only Output:
+**Print the setup to the user now**, as a block, giving the reason for every Off, every "no PR" and
+every list-only Output:
 
 ```
+Review setup
 Target      PR #42 (open, fork) · head 3f2a1c9 · base origin/main
 Code from   head 3f2a1c9
 Diff        git diff origin/main...3f2a1c9
@@ -132,6 +134,9 @@ Profile     origin/main (fork author)
 Threads     gh
 Output      pending review on PR #42
 ```
+
+Do not halt on it: the user can interject while the review runs. If they correct it, classify again
+from item 2.
 
 Then, before step 3:
 
@@ -143,7 +148,7 @@ Then, before step 3:
 
 ### 3. Discover the project profile
 
-Read the repo before you judge anything in it, from the card's **Profile from**: at a ref, list files
+Read the repo before you judge anything in it, from the setup's **Profile from**: at a ref, list files
 with `git ls-tree -r --name-only <ref>` and read them with `git show <ref>:<path>`. Read in this order,
 noting where each fact came from: the repo's agent instructions (`CLAUDE.md`, root and nested, and
 every file it tells you to read for the touched area); package-manager and build manifests; CI
@@ -160,7 +165,7 @@ Record a short **numbered block**, one line per fact:
    layering boundaries, test-data rules. **One mandate per line.**
 5. **Intent.** The PR body, plus any plan file the diff adds or the PR body links. With neither, say
    so: step 4 skips its conformance check, and the report mentions it.
-6. **Existing threads.** From the card's **Threads from**. With `gh`, read them with
+6. **Existing threads.** From the setup's **Threads from**. With `gh`, read them with
    `gh api --paginate` (a single page stops at 30 items): `repos/{owner}/{repo}/pulls/<N>/comments`
    (inline), `.../pulls/<N>/reviews` (review bodies), and `.../issues/<N>/comments` (the
    conversation). With Conductor, `GetDiffComments`.
@@ -170,7 +175,7 @@ Record a short **numbered block**, one line per fact:
 Invoke `my-tech-team:karpathy-guidelines`; in it, "the user's request" means the profile's intent line.
 It tells you what to look for; the bar below decides what you report.
 
-Read the card's diff, and every file through the card's **Code from**, then work this checklist
+Read the setup's diff, and every file through the setup's **Code from**, then work this checklist
 yourself, **in this context, one pass at a time**. For each hunk, also read the enclosing function —
 bugs on unchanged lines of a touched function are in scope, because the change re-exposes them or
 fails to fix them. Anything already present at the merge base is out of scope, unless the diff newly
@@ -222,7 +227,7 @@ reportable severity, see step 6); a **likelihood** — Certain, Likely, Possible
 ### 5. Challenge
 
 Spawn `my-tech-team:review-challenger`, named `review-challenger`, in the foreground. Its prompt
-carries your numbered findings, the run card and the profile block verbatim, and what the card means
+carries your numbered findings, the review setup and the profile block verbatim, and what the setup means
 for its commands: when **Code from** is a head SHA, every command names that SHA
 (`git show <sha>:<path>`, `git grep <pattern> <sha>`, `git log -S<text> origin/<base>..<sha>`,
 `git diff origin/<base>...<sha>`); when the **Diff** adds `git diff HEAD`, the uncommitted lines are
@@ -236,7 +241,7 @@ argues better. A verdict backed by command output — a `grep` over the caller s
 proving the defect pre-dates the branch, a failing check — beats one backed by reasoning alone. When
 neither side ran a command and one would settle it, **run it yourself**: a static command first, a
 [scratch test](#scratch-tests) only when none settles it. A check or scratch test runs only when the
-card's **Execution** is On.
+setup's **Execution** is On.
 
 **Never run a check that carries an external cost** — anything the profile's hazards line marks as
 costly (metered queries, LLM calls, paid APIs), or whose cost is unclear. When such a check would
@@ -261,12 +266,13 @@ Give the survivors as a **numbered list**, most severe first, each exactly:
 Fix: <how to fix it, one or two lines>
 ```
 
-Add "(unverified)" to the headline of any finding kept in doubt. When the card's **Execution** is On
+Add "(unverified)" to the headline of any finding kept in doubt. When the setup's **Execution** is On
 and only a costly check (step 6) would settle it, add a fourth line —
 `Check: <command> — <estimated cost, or "cost unknown">` — and run it only if the user greenlights it
 in their reply. Then a short **Dropped** tail, one line per dropped finding:
-`<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Then the run card: its **Output** line tells the
-user where kept findings will go. Mention a skipped conformance check here too.
+`<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Mention a skipped conformance check here too.
+End with one line, `Kept findings go to: <the setup's Output>` — the full setup was already printed
+in step 2.
 
 Then **stop** and wait for the user's reply — "keep 1, 3, 5", "drop 2", "run check 4", with any
 edits to wording. When the reply greenlights a check, run it, re-adjudicate that finding, show the
@@ -275,7 +281,7 @@ Step 8 starts only once every finding has the user's keep or drop.
 
 ### 8. Post
 
-Follow the card's **Output**.
+Follow the setup's **Output**.
 
 **A pending review on the PR.** Write a two-column **summary table** into the plan file:
 `file:line` | comment. Each comment is the issue and the fix only, with the user's edits applied — no
@@ -336,4 +342,4 @@ files. Quote the delimiter, so the shell leaves the script alone, and run it fro
 - **Quote it.** The full script, its output, and a line naming what the safety trace covered are the
   evidence.
 
-**When they may run.** Only when the card's **Execution** is On. When it is Off, never, whoever asks.
+**When they may run.** Only when the setup's **Execution** is On. When it is Off, never, whoever asks.
