@@ -46,7 +46,7 @@ pinned per role.
 This repository is both a marketplace and the plugin. It is private, so you need read access.
 
 ```
-/plugin marketplace add cideck/my-tech-team
+/plugin marketplace add madia-founders/my-tech-team
 /plugin install my-tech-team@my-tech-team
 ```
 
