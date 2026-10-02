@@ -239,8 +239,11 @@ green** — reviewers should be reading working code, not broken WIP.
 ### 11. Pull request and hand back
 
 Commit anything still outstanding and push the branch. Then, if the profile's PR tool is `gh`, run
-`gh pr create --base <base>`. The PR body is a **short structured summary**: what changed and why, a
-link to the plan file, and anything the user should know before merging.
+`gh pr create --base <base>` — **ready for review, never `--draft`**. The PR body is a **short
+structured summary**: what changed and why, a link to the plan file, and anything the user should know
+before merging. If something still has to happen before merging (an eval gate that has not run, a merge
+that auto-deploys), end the PR body with a "Before merging" section and repeat it in the hand-back — do
+not use draft status for this.
 
 **No `gh`, or a remote that is not GitHub:** push, do not open anything, and put "open the PR/MR
 yourself" in the hand-back — with the target branch and the PR body written out, ready to paste.
