@@ -10,7 +10,7 @@ run `grill-me` when a feature is clear but its plan is not.
 
 ## Decisions ledger
 
-1. Import `monrovia-v2/.claude/skills/karpathy-guidelines/SKILL.md` into this plugin verbatim.
+1. Import the user's existing `karpathy-guidelines` skill (`SKILL.md`) into this plugin verbatim.
 2. Scope: Karpathy guidelines only — no change to PR-description guidance.
 3. Preflight split: nothing to build → ask; a feature but no clear plan → the lead invokes
    `my-tech-team:grill-me` before step 2.

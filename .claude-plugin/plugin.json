@@ -5,5 +5,6 @@
     "name": "Cideck"
   },
   "repository": "https://github.com/madia-founders/my-tech-team",
+  "license": "MIT",
   "keywords": ["pipeline", "code-review", "multi-agent", "tech-lead", "adversarial", "peer-review"]
 }

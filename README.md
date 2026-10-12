@@ -43,7 +43,7 @@ pinned per role.
 
 ## Install
 
-This repository is both a marketplace and the plugin. It is private, so you need read access.
+This repository is both a marketplace and the plugin.
 
 ```
 /plugin marketplace add madia-founders/my-tech-team
@@ -64,3 +64,7 @@ node ~/.claude/plugins/marketplaces/my-tech-team/scripts/watch-agents.mjs
 
 It is read-only. It tails the session transcripts under `~/.claude/projects/` and shows each agent
 as working, quiet, or done.
+
+## License
+
+MIT. See [LICENSE](LICENSE). `skills/karpathy-guidelines` is MIT-licensed by its own authors.
