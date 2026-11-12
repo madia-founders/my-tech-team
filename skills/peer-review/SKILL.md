@@ -1,13 +1,14 @@
 ---
 name: peer-review
-description: "Run a review-only pass as review lead, in plan mode — review the branch or a PR, have the review challenged, adjudicate on evidence, present the survivors for approval, and post only the approved verified ones as a pending PR review. Use when the user types /my-tech-team:peer-review."
+description: "Run a review-only pass as review lead, in plan mode — review the branch or a PR alongside a parallel native code-review, have both reviews challenged, adjudicate on evidence, present the survivors for approval, and post only the approved verified ones as a pending PR review. Use when the user types /my-tech-team:peer-review."
 disable-model-invocation: true
 ---
 
 # Peer Review
 
-You are the **review lead**. You review the change yourself, have `review-challenger` attack your
-review in a fresh context, adjudicate between the two on evidence, and hand the survivors to the user.
+You are the **review lead**. You review the change yourself while a parallel agent runs the native
+`code-review` skill on it, have `review-challenger` attack both reviews in a fresh context,
+adjudicate on evidence, and hand the survivors to the user.
 The user decides what is posted. You never fix anything: this skill is the review half of
 `/my-tech-team:code`'s step 10, run on its own.
 
@@ -171,7 +172,24 @@ Record a short **numbered block**, one line per fact:
    (inline), `.../pulls/<N>/reviews` (review bodies), and `.../issues/<N>/comments` (the
    conversation). With Conductor, `GetDiffComments`.
 
-### 4. Review
+### 4. Review — two in parallel
+
+**First, start the native review.** Before you read the diff, spawn one agent, named
+`native-code-review`: `subagent_type: "general-purpose"`, `effort: "high"`,
+`run_in_background: true`. Its prompt is exactly the `code-review` skill's command and nothing else:
+
+- PR-number target: `/code-review high <N>`
+- Current branch: `/code-review high origin/<base>...HEAD`, with the setup's base. Never the bare
+  command: without a target it diffs against the branch's upstream, which is empty once the branch
+  is pushed.
+
+Give it no profile, no setup, no hint of what to look for: its value is a read not anchored on
+yours. The one exception is **Execution** Off: then append the single line
+`Run no code: no checks, no tests, no scripts. Read only.` — untrusted code never runs, whoever runs
+the review. Never pass `--fix` or `--comment`.
+
+**Then do your own review**, below, while it runs. Do not read its result until yours is written
+down.
 
 Invoke `my-tech-team:karpathy-guidelines`; in it, "the user's request" means the profile's intent line.
 It tells you what to look for; the bar below decides what you report.
@@ -182,8 +200,8 @@ bugs on unchanged lines of a touched function are in scope, because the change r
 fails to fix them. Anything already present at the merge base is out of scope, unless the diff newly
 depends on it.
 
-**Do not spawn subagents to sweep the diff**, and **do not invoke the `code-review` skill** — its
-multi-agent fan-out is what this single-context review plus a challenger replaces. Reserve `Agent` /
+**Do not spawn subagents to sweep the diff**, and **do not invoke the `code-review` skill yourself**
+— `native-code-review` already runs it; your review is the single-context one. Reserve `Agent` /
 `Explore` for a genuinely wide lookup that would otherwise take a dozen greps. **Do not call
 `ReportFindings`**: the user gets the list in the format of step 7.
 
@@ -221,14 +239,20 @@ may take a [scratch test](#scratch-tests).
 entries are in scope when the profile's mandates line requires them. Do not report what the linter,
 typechecker, or test suite would already catch. **Prefer zero findings to weak ones.**
 
-Number your findings, most severe first. Each carries: `file:line`; a one-sentence defect; a concrete
-failure scenario with its preconditions; a **severity** — Blocker, Major or Minor (Nit is not a
-reportable severity, see step 6); a **likelihood** — Certain, Likely, Possible or Rare; and the fix.
+Number your findings `L1`, `L2`…, most severe first. Each carries: `file:line`; a one-sentence
+defect; a concrete failure scenario with its preconditions; a **severity** — Blocker, Major or Minor
+(Nit is not a reportable severity, see step 6); a **likelihood** — Certain, Likely, Possible or Rare;
+and the fix.
+
+**Then wait for `native-code-review`.** Take its findings exactly as it returned them and number them
+`N1`, `N2`…, in its order. Do not filter, merge or reword them yet — that is step 6. If it failed or
+returned nothing usable, say so in the report (step 7) and go on with yours alone.
 
 ### 5. Challenge
 
-Spawn `my-tech-team:review-challenger`, named `review-challenger`, in the foreground. Its prompt
-carries your numbered findings, the review setup and the profile block verbatim, and what the setup means
+Spawn `my-tech-team:review-challenger`, named `review-challenger`, in the foreground, once both
+reviews are in. Its prompt carries both lists verbatim — the **lead review** (`L`) and the **native
+review** (`N`), labelled as such — then the review setup and the profile block verbatim, and what the setup means
 for its commands: when **Code from** is a head SHA, every command names that SHA
 (`git show <sha>:<path>`, `git grep <pattern> <sha>`, `git log -S<text> origin/<base>..<sha>`,
 `git diff origin/<base>...<sha>`); when the **Diff** adds `git diff HEAD`, the uncommitted lines are
@@ -251,7 +275,13 @@ in step 7, to greenlight or reject; when Execution is Off, the finding stays unv
 run that only estimates the cost — `bq query --dry_run` for BigQuery, say — is fine, and gives the
 estimate.
 
-The challenger's misses go through the same gate as your findings. When a finding is genuinely in
+**Merge the two reviews.** The native review's findings face the same bar (step 4) and the same
+evidence rule as yours — a finding is not stronger for coming from a fan-out. Where an `L` and an `N`
+finding describe the same defect, keep one: the better-evidenced wording, noting both sources. Give
+every surviving `N` finding a severity and a likelihood, in step 4's format. One that only fails
+step 4's bar goes to **Dropped**.
+
+The challenger's misses go through the same gate as both reviews' findings. When a finding is genuinely in
 doubt after all that, **keep it** and mark it unverified: the user decides, not you.
 
 A finding goes to **Dropped** when the challenger's REJECT holds on the evidence, when on reflection it
@@ -281,7 +311,8 @@ after the quote: `Why unverified: <the reason>` or, when the setup's **Execution
 costly check would settle it, `Check: <command> — <estimated cost, or "cost unknown">`.
 
 Then a short **Dropped** section, one line per dropped finding:
-`<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Mention a skipped conformance check here too.
+`<title> — <Nit|Rejected|Duplicate>: <the evidence>`. Mention a skipped conformance check here too,
+and a native review that failed or returned nothing.
 End with `Approved findings go to: <the setup's Output>` — the full setup was already printed in
 step 2 — and, when there is somewhere to post, the replies: approve to post the **Post** section; to
 change it, reject with "drop 1", "reword 2: …", "add 3" or "run check 4".

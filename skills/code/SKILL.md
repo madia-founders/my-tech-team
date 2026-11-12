@@ -49,6 +49,7 @@ Each role is an agent shipped by this plugin. Spawn them with the `Agent` tool u
 | `my-tech-team:implementer` | inherit | high | Build one unit's slice |
 | `my-tech-team:code-reviewer` | inherit | xhigh | Review the branch diff |
 | `my-tech-team:review-challenger` | inherit | high | Attack the review |
+| `general-purpose` (`native-code-review`) | inherit | high | Run the native `code-review` skill beside `code-reviewer` (step 10) |
 
 Every artifact is challenged by a *separate* agent on purpose. `xhigh` goes to the two roles that
 must sweep a whole artifact for unknown unknowns — the plan challenger and the code reviewer. The
@@ -59,7 +60,7 @@ that produced an artifact review its own output — the disagreement is the prod
 skill; you load it yourself before you write code (step 7).
 
 **Every spawn prompt carries the project profile block (step 2) verbatim, plus the plan file path
-once it exists.** The agents have no other source for the repo's units, commands, hazards and
+once it exists** — except `native-code-review`'s, which is the bare command (step 10). The agents have no other source for the repo's units, commands, hazards and
 mandates; a paraphrase loses exactly the line they needed.
 
 ## Pipeline
@@ -215,9 +216,20 @@ away; that converts a scheduling problem into a permanently weaker test.
 Review runs on the **full branch diff** (`git diff origin/<base>...`) and only **after the build is
 green** — reviewers should be reading working code, not broken WIP.
 
-1. Spawn `code-reviewer` on the branch diff, with the plan file, the base branch, and the profile —
-   its mandates line is the reviewer's repo checklist.
-2. Spawn `review-challenger` on its findings: false positives, wrong fixes, real bugs it missed.
+1. Spawn two reviews **in parallel**, both with `run_in_background: true`:
+   - `code-reviewer` on the branch diff, with the plan file, the base branch, and the profile — its
+     mandates line is the reviewer's repo checklist.
+   - `native-code-review`: `subagent_type: "general-purpose"`, `effort: "high"`. Its prompt is
+     exactly `/code-review high origin/<base>...HEAD` and nothing else — no plan, no profile: its
+     value is a read not anchored on the plan. Never the bare command (without a target it diffs
+     against the branch's upstream or `main`, not the base), and never `--fix` or `--comment`:
+     fixes go to the agent that wrote the code (item 4).
+
+   Wait for both. Number `code-reviewer`'s findings `L1`, `L2`… and the native review's `N1`,
+   `N2`…, as returned. If the native review fails or returns nothing, go on with `code-reviewer`'s
+   alone and say so in the hand-back.
+2. Spawn `review-challenger` on both lists, verbatim and labelled — the **lead review** (`L`) and the
+   **native review** (`N`): false positives, wrong fixes, real bugs either missed.
 3. **You adjudicate, on evidence.** Unlike gate 1, contested *review* findings are yours to settle —
    but settle them with command output, not with whichever side argues better. A verdict backed by a
    failing test, a `grep` over the caller set, or a `git log` proving the defect pre-dates the branch
@@ -225,7 +237,9 @@ green** — reviewers should be reading working code, not broken WIP.
    it yourself** before deciding — a static command first, a [scratch test](#scratch-tests) only when
    none settles it — unless it carries an external cost (the profile's hazards line) or its cost is
    unclear: then **halt** and put the command and its cost to the user to greenlight or reject. A free
-   dry run that only estimates the cost (`bq query --dry_run`) is fine. Fall back to "apply the fix
+   dry run that only estimates the cost (`bq query --dry_run`) is fine. The native review's findings
+   face the same bar and evidence rule as `code-reviewer`'s; where an `L` and an `N` finding describe
+   the same defect, keep one. Fall back to "apply the fix
    when genuinely in doubt" only for claims no command can settle. List every dropped finding — and
    the evidence that dropped it — in your final report.
 4. Route each surviving finding to **whichever agent wrote that code**, by resuming it with
@@ -234,7 +248,8 @@ green** — reviewers should be reading working code, not broken WIP.
    resume it rather than patching over its work yourself. A finding a scratch test confirmed is fixed
    with that scratch test turned into a regression test in the repo's own suite.
 5. Re-run the gate suite, commit the fixes, then send the fix diff back to `code-reviewer` for a
-   focused re-check. **Cap at 2 rounds**, then escalate to the user.
+   focused re-check — `code-reviewer` only: the native review runs in the first round alone.
+   **Cap at 2 rounds**, then escalate to the user.
 
 ### 11. Pull request and hand back
 

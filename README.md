@@ -76,8 +76,9 @@ artifact is attacked by a second agent in a fresh context before it is trusted.
 2. **Implement.** Shared packages land first, then one implementer per package, in parallel only
    when it helps.
 3. **Gate.** The repo's own CI suite, run locally. Red halts the run; it never pushes on red.
-4. **Review, challenge, adjudicate.** The code-reviewer reviews, the review-challenger hunts false
-   positives, wrong fixes and missed bugs, and the lead decides on evidence. Fixes are re-verified.
+4. **Review, challenge, adjudicate.** The code-reviewer and the native `code-review` skill review in
+   parallel, the review-challenger hunts false positives, wrong fixes and missed bugs in both, and
+   the lead decides on evidence. Fixes are re-verified.
 5. **Open the PR**, ready for review, with a **"What's left for you"** list: the merge, local files
    not to commit, known bugs left out of scope, trade-offs you accepted.
 
@@ -88,8 +89,8 @@ surgical changes, goal-driven execution. If no clear plan exists, `code` runs `g
 
 ### Work in progress: `/my-tech-team:peer-review [PR#]`
 
-The review half of `code` on its own, for the current branch or a PR. It reviews, has the review
-challenged, and puts the verified findings up for your approval. Approved findings become a
+The review half of `code` on its own, for the current branch or a PR. It reviews while a parallel
+agent runs the native `code-review` skill, has both reviews challenged, and puts the verified findings up for your approval. Approved findings become a
 **pending** PR review that you submit yourself. It never fixes code.
 
 ## Watch a run
