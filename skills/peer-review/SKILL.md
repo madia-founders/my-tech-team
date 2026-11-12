@@ -176,15 +176,34 @@ Record a short **numbered block**, one line per fact:
 
 **First, start the native review.** Before you read the diff, spawn one agent, named
 `native-code-review`: `subagent_type: "general-purpose"`, `effort: "high"`,
-`run_in_background: true`. Its prompt is exactly the `code-review` skill's command and nothing else:
+`run_in_background: true`. Its prompt is the `code-review` skill's command, then one sentence saying
+in prose what to compare — the command's target alone does not fix the base. With the setup's
+values filled in:
 
-- PR-number target: `/code-review high <N>`
-- Current branch: `/code-review high origin/<base>...HEAD`, with the setup's base. Never the bare
-  command: without a target it diffs against the branch's upstream, which is empty once the branch
-  is pushed.
+- PR-number target:
 
-Give it no profile, no setup, no hint of what to look for: its value is a read not anchored on
-yours. The one exception is **Execution** Off: then append the single line
+  ```
+  /code-review high <N>
+
+  Review pull request #<N> as it stands on GitHub, at head <sha>, against its base origin/<base>.
+  ```
+
+- Current branch:
+
+  ```
+  /code-review high origin/<base>...HEAD
+
+  Review the changes this branch makes on top of origin/<base>: the committed diff
+  `git diff origin/<base>...HEAD`, plus any uncommitted changes.
+  ```
+
+  Never the bare command: without a target it diffs against the branch's upstream, which is empty
+  once the branch is pushed.
+
+Keep the scope sentence inside the prompt, after the command — never inside the command's arguments,
+which `code-review` parses as level, target and flags. Give it nothing else: no profile, no setup,
+no hint of what to look for. Its value is a read not anchored on yours. The one exception is
+**Execution** Off: then append the single line
 `Run no code: no checks, no tests, no scripts. Read only.` — untrusted code never runs, whoever runs
 the review. Never pass `--fix` or `--comment`.
 

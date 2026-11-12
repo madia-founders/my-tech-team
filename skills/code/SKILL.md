@@ -60,7 +60,7 @@ that produced an artifact review its own output — the disagreement is the prod
 skill; you load it yourself before you write code (step 7).
 
 **Every spawn prompt carries the project profile block (step 2) verbatim, plus the plan file path
-once it exists** — except `native-code-review`'s, which is the bare command (step 10). The agents have no other source for the repo's units, commands, hazards and
+once it exists** — except `native-code-review`'s, which is the command and its scope sentence only (step 10). The agents have no other source for the repo's units, commands, hazards and
 mandates; a paraphrase loses exactly the line they needed.
 
 ## Pipeline
@@ -219,9 +219,18 @@ green** — reviewers should be reading working code, not broken WIP.
 1. Spawn two reviews **in parallel**, both with `run_in_background: true`:
    - `code-reviewer` on the branch diff, with the plan file, the base branch, and the profile — its
      mandates line is the reviewer's repo checklist.
-   - `native-code-review`: `subagent_type: "general-purpose"`, `effort: "high"`. Its prompt is
-     exactly `/code-review high origin/<base>...HEAD` and nothing else — no plan, no profile: its
-     value is a read not anchored on the plan. Never the bare command (without a target it diffs
+   - `native-code-review`: `subagent_type: "general-purpose"`, `effort: "high"`. Its prompt is the
+     command, then one sentence saying in prose what to compare — the command's target alone does
+     not fix the base:
+
+     ```
+     /code-review high origin/<base>...HEAD
+
+     Review the changes this branch makes on top of origin/<base>: the committed diff
+     `git diff origin/<base>...HEAD`.
+     ```
+
+     Nothing else — no plan, no profile: its value is a read not anchored on the plan. Never the bare command (without a target it diffs
      against the branch's upstream or `main`, not the base), and never `--fix` or `--comment`:
      fixes go to the agent that wrote the code (item 4).
 
