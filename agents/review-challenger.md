@@ -91,6 +91,10 @@ Scratch tests run only when execution is on (above).
 
 ## Required output
 
+You may be given more than one review — each list labelled, its findings numbered with a prefix
+(`L1`, `N1`…). Treat every list the same way, and keep the labels in your verdicts. Where two
+findings describe the same defect, say so.
+
 For each of the reviewer's findings: **UPHOLD**, **REJECT**, or **REVISE** — with the evidence, the
 command you ran and its relevant output wherever one applies, and for REVISE, what the fix should be
 instead.
