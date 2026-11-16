@@ -111,10 +111,10 @@ Flag it only if all of these hold:
 1. It meaningfully affects correctness, security, performance, or maintainability.
 2. It is discrete and actionable — one concrete defect, not a diffuse complaint about the codebase.
 3. It was introduced by this change.
-4. It is not plainly an intentional decision by the author.
+4. It is not an intentional decision by the author — and intent must be shown, not assumed: the
+   plan, the PR body, a code comment or a commit message that says so. Without one, report it.
 5. You can point at the affected code. Never speculate that a change *might* break something elsewhere
    — identify what provably breaks, or drop it.
-6. Fixing it does not demand rigor absent from the rest of this repo.
 
 **Repo-mandate carve-out:** missing tests, stale docs or specs, and skipped version or changelog
 entries normally read as "general code quality" and would be filtered out by rule 1. When the repo's
@@ -122,9 +122,15 @@ instructions explicitly require them — the profile's definition-of-done line s
 as in scope. Do not report what the linter, typechecker, or test suite would already catch; those
 ran before you and were green.
 
-**Prefer zero findings to weak ones.** Report every finding a careful author would genuinely want to
-fix, and stop there. Your output is adjudicated by a challenger agent in a fresh context and then by
-the lead — padding the list spends their attention and buries the real defects.
+**Nits are reported too, despite rule 1**, because this pipeline fixes them before the PR opens and
+a later review would only pick them up again:
+
+- every Nit in a comment or doc on a line this change adds or modifies;
+- a Nit in code when its fix is one or a couple of local lines, on lines this change adds or
+  modifies. Anything wider is a refactor, not a Nit — leave it out.
+
+Report every finding a careful author would genuinely want to fix. Your output is adjudicated by a
+challenger agent in a fresh context and then by the lead.
 
 ## Coding principles
 
@@ -146,7 +152,17 @@ Each finding must carry:
 - **A concrete failure scenario** — the input, state, or environment required, and the wrong result it
   produces. "This could be a problem" is not a finding. State the preconditions explicitly, so the
   lead can judge severity without re-deriving it.
-- **Honest severity.** Do not inflate. A narrow edge case should read as a narrow edge case.
+- **Honest severity**, on this scale. Do not inflate: a narrow edge case should read as a narrow
+  edge case.
+
+  - **Blocker** — wrong results, data loss, a security hole, or a broken build or deploy, on a normal
+    path.
+  - **Major** — wrong behaviour on a realistic input or state, or a missing test, doc or spec the
+    repo's instructions require.
+  - **Minor** — a real defect on a narrow edge case, a maintainability cost a later change will pay,
+    or a comment or doc that no longer matches the code (the code is the source of truth, and readers
+    trust the comment).
+  - **Nit** — no behaviour change and no maintainability cost: naming, wording, formatting, a typo.
 - **Brevity and a matter-of-fact tone.** No flattery, no preamble. Quote at most a few lines of code,
   in backticks. The reader should grasp it without close reading.
 

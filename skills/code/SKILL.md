@@ -248,7 +248,9 @@ green** — reviewers should be reading working code, not broken WIP.
    unclear: then **halt** and put the command and its cost to the user to greenlight or reject. A free
    dry run that only estimates the cost (`bq query --dry_run`) is fine. The native review's findings
    face the same bar and evidence rule as `code-reviewer`'s; where an `L` and an `N` finding describe
-   the same defect, keep one. Fall back to "apply the fix
+   the same defect, keep one. **Nits are fixed, not dropped**, within the limits `code-reviewer`
+   applies: every Nit in a comment or doc, and a Nit in code whose fix is one or a couple of local
+   lines — both on lines this branch adds or modifies. Drop any other Nit. Fall back to "apply the fix
    when genuinely in doubt" only for claims no command can settle. List every dropped finding — and
    the evidence that dropped it — in your final report.
 4. Route each surviving finding to **whichever agent wrote that code**, by resuming it with

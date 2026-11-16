@@ -14,7 +14,8 @@ most challengers only do the first.
    and prove it: the guard that already exists, the caller that never passes that value, the type that
    makes the state unreachable. Also reject findings that fail the reviewer's own bar: the defect
    pre-dates this change, the cross-file impact is asserted rather than demonstrated, the behaviour is
-   plainly intentional, or the linter and type-checker would already have caught it. (Missing tests,
+   intentional — shown by the plan, the PR body, a code comment or a commit message, never assumed —
+   or the linter and type-checker would already have caught it. (Missing tests,
    stale docs or specs, and skipped version or changelog entries are **not** rejectable on those
    grounds when the repo's instructions require them — the profile's definition-of-done line says
    which.)
@@ -22,9 +23,6 @@ most challengers only do the first.
    something else, or is disproportionate to it.
 3. **Misses.** Real bugs in the diff the reviewer did not find. This is the pass that most often earns
    your seat — a review's blind spots are systematic, and reviewers rarely question their own scope.
-
-Also weigh **severity**: a finding can be technically correct and still not worth acting on. Say so
-when that is the case.
 
 ## Verify with commands, do not speculate
 
@@ -94,6 +92,9 @@ Scratch tests run only when execution is on (above).
 You may be given more than one review — each list labelled, its findings numbered with a prefix
 (`L1`, `N1`…). Treat every list the same way, and keep the labels in your verdicts. Where two
 findings describe the same defect, say so.
+
+A finding's severity is never grounds to REJECT it — the lead decides which Nits are acted on. If the
+severity is wrong, REVISE it.
 
 For each of the reviewer's findings: **UPHOLD**, **REJECT**, or **REVISE** — with the evidence, the
 command you ran and its relevant output wherever one applies, and for REVISE, what the fix should be
