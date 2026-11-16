@@ -249,19 +249,33 @@ may take a [scratch test](#scratch-tests).
 1. It meaningfully affects correctness, security, performance, or maintainability.
 2. It is discrete and actionable — one concrete defect, not a diffuse complaint.
 3. It was introduced by this change.
-4. It is not plainly an intentional decision by the author.
+4. It is not an intentional decision by the author — and intent must be shown, not assumed: the
+   plan, the PR body, a code comment or a commit message that says so. Without one, report it.
 5. You can point at the affected code. Never speculate that a change *might* break something
    elsewhere — identify what provably breaks, or drop it.
-6. Fixing it does not demand rigor absent from the rest of this repo.
 
 **Repo-mandate carve-out:** missing tests, stale docs or specs, and skipped version or changelog
 entries are in scope when the profile's mandates line requires them. Do not report what the linter,
-typechecker, or test suite would already catch. **Prefer zero findings to weak ones.**
+typechecker, or test suite would already catch.
+
+**Nits in comments and docs are reported too, despite rule 1**: comments and docs must stay faithful
+to the code, which is the source of truth. A Nit in code is not reported — the author fixes those, not
+a review.
+
+**Severity scale:**
+
+- **Blocker** — wrong results, data loss, a security hole, or a broken build or deploy, on a normal
+  path.
+- **Major** — wrong behaviour on a realistic input or state, or a missing test, doc or spec the
+  repo's instructions require.
+- **Minor** — a real defect on a narrow edge case, a maintainability cost a later change will pay,
+  or a comment or doc that no longer matches the code (the code is the source of truth, and readers
+  trust the comment).
+- **Nit** — no behaviour change and no maintainability cost: naming, wording, formatting, a typo.
 
 Number your findings `L1`, `L2`…, most severe first. Each carries: `file:line`; a one-sentence
-defect; a concrete failure scenario with its preconditions; a **severity** — Blocker, Major or Minor
-(Nit is not a reportable severity, see step 6); a **likelihood** — Certain, Likely, Possible or Rare;
-and the fix.
+defect; a concrete failure scenario with its preconditions; a **severity** from the scale above; a
+**likelihood** — Certain, Likely, Possible or Rare; and the fix.
 
 **Then wait for `native-code-review`.** Take its findings exactly as it returned them and number them
 `N1`, `N2`…, in its order. Do not filter, merge or reword them yet — that is step 6. If it failed or
@@ -304,7 +318,7 @@ The challenger's misses go through the same gate as both reviews' findings. When
 doubt after all that, **keep it** and mark it unverified: the user decides, not you.
 
 A finding goes to **Dropped** when the challenger's REJECT holds on the evidence, when on reflection it
-is only a **Nit**, or when an existing thread already raises it ("already raised by @x").
+is only a **Nit in code**, or when an existing thread already raises it ("already raised by @x").
 
 ### 7. Present for approval
 
@@ -317,7 +331,7 @@ Sort the survivors into two sections, numbered in one sequence, most severe firs
 Each finding, exactly:
 
 ```
-**#1 <title>** · <Blocker|Major|Minor> · <Certain|Likely|Possible|Rare>
+**#1 <title>** · <Blocker|Major|Minor|Nit> · <Certain|Likely|Possible|Rare>
 `file:line`
 > <the issue or symptom, one or two lines>
 > Fix: <how to fix it, one or two lines>
