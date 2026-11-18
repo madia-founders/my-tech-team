@@ -90,8 +90,9 @@ surgical changes, goal-driven execution. If no clear plan exists, `code` runs `g
 ### Work in progress: `/my-tech-team:peer-review [PR#]`
 
 The review half of `code` on its own, for the current branch or a PR. It reviews while a parallel
-agent runs the native `code-review` skill, has both reviews challenged, and puts the verified findings up for your approval. Approved findings become a
-**pending** PR review that you submit yourself. It never fixes code.
+agent runs the native `code-review` skill, has both reviews challenged, and puts the verified
+findings up for your approval. Approved findings are posted as soon as you approve, as a PR review
+submitted as a comment: it never approves or blocks the PR, and it never fixes code.
 
 ## Watch a run
 
