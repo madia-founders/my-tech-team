@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1230" height="600" viewBox="0 0 1230 600" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1230" height="530" viewBox="0 70 1230 530" role="img" aria-labelledby="title desc">
   <title id="title">Delegate: 1 team lead, 5 specialists</title>
   <desc id="desc">The lead runs five specialist agents in order: plan-challenger, commons-owner, one or more implementers, code-reviewer, and review-challenger, which challenges the code review in a loop.</desc>
   <defs>
@@ -19,9 +19,7 @@
     </marker>
   </defs>
 
-  <rect width="1230" height="600" rx="12" fill="#F6F8FA"/>
-
-  <text x="32" y="62" class="sans" font-size="40" fill="#1F2328">Delegate: 1 team lead, 5 specialists</text>
+  <rect y="70" width="1230" height="530" rx="12" fill="#F6F8FA"/>
 
   <!-- Lead -->
   <rect x="407" y="91" width="418" height="90" rx="6" fill="#1F2328"/>
