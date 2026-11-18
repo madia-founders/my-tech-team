@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1230" height="600" viewBox="0 0 1230 600" role="img" aria-labelledby="title desc">
+  <title id="title">Delegate: 1 team lead, 5 specialists</title>
+  <desc id="desc">The lead runs five specialist agents in order: plan-challenger, commons-owner, one or more implementers, code-reviewer, and review-challenger, which challenges the code review in a loop.</desc>
+  <defs>
+    <style>
+      .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-weight: 700; font-size: 16px; fill: #1F2328; }
+      .text { font-size: 17px; fill: #1F2328; }
+      .effort { font-size: 15px; fill: #59636E; }
+      .card { fill: #FFFFFF; stroke: #D1D9E0; stroke-width: 1.5; }
+      .icon { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .link { fill: none; stroke: #AFB8C1; stroke-width: 1.5; }
+    </style>
+    <marker id="loop-head" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#59636E"/>
+    </marker>
+    <marker id="order-head" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#59636E"/>
+    </marker>
+  </defs>
+
+  <rect width="1230" height="600" rx="12" fill="#F6F8FA"/>
+
+  <text x="32" y="62" class="sans" font-size="40" fill="#1F2328">Delegate: 1 team lead, 5 specialists</text>
+
+  <!-- Lead -->
+  <rect x="407" y="91" width="418" height="90" rx="6" fill="#1F2328"/>
+  <text x="616" y="137" class="sans" font-size="30" font-weight="700" fill="#FFFFFF" text-anchor="middle">Lead</text>
+  <text x="616" y="166" class="sans" font-size="16" fill="#FFFFFF" text-anchor="middle">Runs the team, arbitrates, stops for you</text>
+
+  <!-- Lead to specialists -->
+  <path class="link" d="M616,181 C616,225 145,215 145,266"/>
+  <path class="link" d="M616,181 C616,225 380,225 380,266"/>
+  <path class="link" d="M616,181 L616,250"/>
+  <path class="link" d="M616,181 C616,225 849,225 849,266"/>
+  <path class="link" d="M616,181 C616,225 1084,215 1084,266"/>
+
+  <!-- plan-challenger -->
+  <g transform="translate(37,266)" class="sans">
+    <rect class="card" width="217" height="249" rx="4"/>
+    <g class="icon" stroke="#59636E">
+      <circle cx="28" cy="38" r="9"/>
+      <path d="M35,45 L42,52"/>
+    </g>
+    <text x="18" y="88" class="mono">plan-challenger</text>
+    <text x="18" y="122" class="text">Attacks the</text>
+    <text x="18" y="146" class="text">plan before any</text>
+    <text x="18" y="170" class="text">code exists</text>
+    <g fill="#59636E">
+      <rect x="18" y="190" width="28" height="8" rx="4"/>
+      <rect x="50" y="190" width="28" height="8" rx="4"/>
+      <rect x="82" y="190" width="28" height="8" rx="4"/>
+      <rect x="114" y="190" width="28" height="8" rx="4"/>
+    </g>
+    <text x="18" y="225" class="effort">Effort: xhigh</text>
+  </g>
+
+  <!-- commons-owner -->
+  <g transform="translate(272,266)" class="sans">
+    <rect class="card" width="217" height="249" rx="4"/>
+    <g class="icon" stroke="#59636E">
+      <ellipse cx="30" cy="31" rx="8" ry="3.5"/>
+      <path d="M22,31 V49 A8,3.5 0 0 0 38,49 V31"/>
+      <path d="M22,37 A8,3.5 0 0 0 38,37"/>
+      <path d="M22,43 A8,3.5 0 0 0 38,43"/>
+    </g>
+    <text x="18" y="88" class="mono">commons-owner</text>
+    <text x="18" y="122" class="text">Edits shared</text>
+    <text x="18" y="146" class="text">packages and</text>
+    <text x="18" y="170" class="text">contracts first</text>
+    <g fill="#59636E">
+      <rect x="18" y="190" width="28" height="8" rx="4"/>
+      <rect x="50" y="190" width="28" height="8" rx="4"/>
+      <rect x="82" y="190" width="28" height="8" rx="4"/>
+    </g>
+    <rect x="114" y="190" width="28" height="8" rx="4" fill="#D1D9E0"/>
+    <text x="18" y="225" class="effort">Effort: high</text>
+  </g>
+
+  <!-- implementer, stacked: one per unit -->
+  <rect x="517" y="250" width="217" height="249" rx="4" fill="#FFFFFF" stroke="#D1D9E0" stroke-width="1.5"/>
+  <rect x="509" y="258" width="217" height="249" rx="4" fill="#FFFFFF" stroke="#D1D9E0" stroke-width="1.5"/>
+  <g transform="translate(501,266)" class="sans">
+    <rect class="card" width="217" height="249" rx="4"/>
+    <g class="icon" stroke="#59636E">
+      <path d="M26,32 L18,40 L26,48"/>
+      <path d="M42,32 L50,40 L42,48"/>
+      <path d="M37,30 L31,50"/>
+    </g>
+    <text x="18" y="88" class="mono">implementer</text>
+    <text x="18" y="122" class="text">Builds one unit's</text>
+    <text x="18" y="146" class="text">slice, one folder only</text>
+    <g fill="#59636E">
+      <rect x="18" y="190" width="28" height="8" rx="4"/>
+      <rect x="50" y="190" width="28" height="8" rx="4"/>
+      <rect x="82" y="190" width="28" height="8" rx="4"/>
+    </g>
+    <rect x="114" y="190" width="28" height="8" rx="4" fill="#D1D9E0"/>
+    <text x="18" y="225" class="effort">Effort: high</text>
+  </g>
+
+  <!-- code-reviewer -->
+  <g transform="translate(741,266)" class="sans">
+    <rect class="card" width="217" height="249" rx="4"/>
+    <g class="icon" stroke="#59636E">
+      <polygon points="42.0,40.0 39.2,43.8 38.5,48.5 33.8,49.2 30.0,52.0 26.2,49.2 21.5,48.5 20.8,43.8 18.0,40.0 20.8,36.2 21.5,31.5 26.2,30.8 30.0,28.0 33.8,30.8 38.5,31.5 39.2,36.2"/>
+      <path d="M25,40 L29,44 L35,36"/>
+    </g>
+    <text x="18" y="88" class="mono">code-reviewer</text>
+    <text x="18" y="122" class="text">Reviews the whole</text>
+    <text x="18" y="146" class="text">branch diff</text>
+    <g fill="#59636E">
+      <rect x="18" y="190" width="28" height="8" rx="4"/>
+      <rect x="50" y="190" width="28" height="8" rx="4"/>
+      <rect x="82" y="190" width="28" height="8" rx="4"/>
+      <rect x="114" y="190" width="28" height="8" rx="4"/>
+    </g>
+    <text x="18" y="225" class="effort">Effort: xhigh</text>
+  </g>
+
+  <!-- review-challenger -->
+  <g transform="translate(976,266)" class="sans">
+    <rect class="card" width="217" height="249" rx="4"/>
+    <g class="icon" stroke="#59636E">
+      <path d="M33,27 L21,43 H30 L27,55 L39,38 H30 Z"/>
+    </g>
+    <text x="18" y="88" class="mono">review-challenger</text>
+    <text x="18" y="122" class="text">Attacks the</text>
+    <text x="18" y="146" class="text">review itself</text>
+    <g fill="#59636E">
+      <rect x="18" y="190" width="28" height="8" rx="4"/>
+      <rect x="50" y="190" width="28" height="8" rx="4"/>
+      <rect x="82" y="190" width="28" height="8" rx="4"/>
+    </g>
+    <rect x="114" y="190" width="28" height="8" rx="4" fill="#D1D9E0"/>
+    <text x="18" y="225" class="effort">Effort: high</text>
+  </g>
+
+  <!-- Review / challenge loop -->
+  <path d="M915,264 Q967,226 1012,258" fill="none" stroke="#59636E" stroke-width="2.5" marker-end="url(#loop-head)"/>
+  <path d="M1020,518 Q967,556 922,524" fill="none" stroke="#59636E" stroke-width="2.5" marker-end="url(#loop-head)"/>
+
+  <!-- Order of the run -->
+  <path d="M34,568 H1186" stroke="#59636E" stroke-width="4" stroke-linecap="round" marker-end="url(#order-head)"/>
+</svg>

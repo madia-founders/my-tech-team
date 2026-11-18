@@ -13,6 +13,7 @@ LLM coding goes wrong in two places:
   confidence of "all tests pass".
 
 `/my-tech-team:grill-me` fixes the first. `/my-tech-team:code` fixes the second.
+`/my-tech-team:peer-review` runs the review half of `code` on its own, on any branch or PR.
 
 ## Install
 
@@ -31,10 +32,12 @@ To auto-update: `/plugin` → **Marketplaces** → **my-tech-team** → **Enable
 ```
 /my-tech-team:grill-me
 /my-tech-team:code
+/my-tech-team:peer-review [PR#]
 ```
 
 Use it for features with real decisions in them, changes across several packages, anything you'd
-want a second pair of eyes on. Skip it for one-line fixes: both skills run longer and use more tokens.
+want a second pair of eyes on. Skip it for one-line fixes: every skill here runs longer and uses
+more tokens.
 
 Nothing in the plugin is specific to one project. Everything repo-specific is read from the repo at
 the start of each run (`CLAUDE.md` and the files it requires, package manifests, CI config). The more
@@ -62,6 +65,8 @@ review, fix and redo.
 The main session becomes the tech lead and runs five specialist agents against your plan. Every
 artifact is attacked by a second agent in a fresh context before it is trusted.
 
+![The lead runs five specialists in order: plan-challenger, commons-owner, one implementer per unit, code-reviewer, and review-challenger, which challenges the review in a loop](docs/code-team.svg)
+
 | Agent | Effort | Job |
 |---|---|---|
 | `plan-challenger` | xhigh | Attacks the plan before any code exists |
@@ -87,12 +92,27 @@ trivial. Every agent that writes or reviews code follows the
 [Karpathy guidelines](skills/karpathy-guidelines/SKILL.md): think before coding, simplicity first,
 surgical changes, goal-driven execution. If no clear plan exists, `code` runs `grill-me` first.
 
-### Work in progress: `/my-tech-team:peer-review [PR#]`
+### `/my-tech-team:peer-review [PR#]`: review
 
-The review half of `code` on its own, for the current branch or a PR. It reviews while a parallel
-agent runs the native `code-review` skill, has both reviews challenged, and puts the verified
-findings up for your approval. Approved findings are posted as soon as you approve, as a PR review
-submitted as a comment: it never approves or blocks the PR, and it never fixes code.
+The review half of `code` on its own, for your current branch or any open PR. It runs in plan mode,
+so it stays read-only.
+
+1. **Set up.** It works out what to review, where to read the code from, whether code may run, and
+   where findings go, and prints that before it starts. A PR number is reviewed without checking it
+   out. A PR from a fork or a non-member never runs on your machine, and is judged by the base
+   branch's rules, not by its own edits to them.
+2. **Review, challenge, adjudicate.** The lead reviews the diff while a parallel agent runs the
+   native `code-review` skill, the review-challenger attacks both reviews, and the lead decides on
+   evidence. A check with an external cost (metered queries, LLM calls, paid APIs) never runs
+   without your go-ahead.
+3. **Approve.** Findings come back ranked, each with a severity, a likelihood and a fix, split into
+   verified ones to post and unverified ones that need your call. Drop, reword or add findings
+   before you approve.
+4. **Post.** Exactly what you approved, as one PR review submitted as a comment. Without an open
+   PR, findings go to Conductor diff comments when available, or stay a list.
+
+Guardrails: it **never approves or blocks** a PR, never fixes code, and posts nothing you did not
+approve.
 
 ## Watch a run
 
