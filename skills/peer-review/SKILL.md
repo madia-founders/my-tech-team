@@ -28,8 +28,9 @@ Invocation:
 2. **Comment, never approve or block.** A GitHub review is always submitted with
    `event: "COMMENT"` — never `APPROVE`, never `REQUEST_CHANGES`. The verdict stays the user's.
 3. **Post only what the user approved.** The **Post** section of the approved plan, word for word —
-   no rewording after approval, no extra comment beyond the review summary step 7 defines. A
-   **Needs your call** finding is posted only when the user asks for it by number.
+   no rewording after approval, no extra text beyond the step 7 **Summary** and, on findings added
+   after posting, the fixed line `<n> more finding(s).`. A **Needs your call** finding is posted
+   only when the user asks for it by number.
 4. **Never post without approval.** Nothing is posted before the user approves the plan through
    `ExitPlanMode`; after that, only a finding the user names.
 
@@ -134,7 +135,7 @@ Diff        git diff origin/main...3f2a1c9
 Execution   Off: PR-number target, fork author
 Profile     origin/main (fork author)
 Threads     gh
-Output      review on PR #42 (comment)
+Output      PR review on #42
 ```
 
 Do not halt on it: the user can interject while the review runs. If they correct it, classify again
@@ -343,8 +344,8 @@ inline comments there. Under **Needs your call**, add `· unverified` to the hea
 after the quote: `Why unverified: <the reason>` or, when the setup's **Execution** is On and only a
 costly check would settle it, `Check: <command> — <estimated cost, or "cost unknown">`.
 
-When Output is a PR review and no finding in **Post** is a `(review body)` one, open **Post** with
-a **Summary**: the review's text, under 50 words, giving the number of findings — for example
+When Output is a PR review, open **Post** with an unnumbered **Summary**: the opening of the
+review's text, under 50 words, giving the number of findings — for example
 `> 3 findings: one Major in the retry logic, two Minor in the tests.` It is posted word for word too,
 and rewritten whenever a reply changes **Post**.
 
@@ -353,7 +354,7 @@ Then a short **Dropped** section, one line per dropped finding:
 and a native review that failed or returned nothing.
 End with `Approved findings go to: <the setup's Output>` — the full setup was already printed in
 step 2 — and, when there is somewhere to post, the replies: approve to post the **Post** section; to
-change it, reject with "drop 1", "reword 2: …", "add 3" or "run check 4".
+change it, reject with "drop 1", "reword 2: …", "reword summary: …", "add 3" or "run check 4".
 
 Where the report goes follows the setup's **Output**:
 
@@ -380,10 +381,10 @@ gh api -X POST repos/{owner}/{repo}/pulls/<N>/reviews --input - <<'REVIEW'
 REVIEW
 ```
 
-with `commit_id` the head SHA, `body` the comments of the `(review body)` findings (each prefixed
-with its `file:line`), and `comments` one `{path, line, side, body}` per inline finding — `side` is
-`RIGHT` for added or context lines, `LEFT` for deleted ones. `event` is always `COMMENT`. With no
-`(review body)` finding, `body` is the approved **Summary**. If GitHub refuses it because a pending
+with `commit_id` the head SHA, `body` the approved **Summary** followed by the comments of the
+`(review body)` findings (each prefixed with its `file:line`), and `comments` one
+`{path, line, side, body}` per inline finding — `side` is `RIGHT` for added or context lines, `LEFT`
+for deleted ones. `event` is always `COMMENT`. If GitHub refuses it because a pending
 review of yours appeared since step 2, halt and ask as there — never add to it. Hand back the
 review's URL.
 
@@ -396,9 +397,9 @@ does not go unnoticed.
 "run check N" runs under the same rules as in step 7, but only reports: show the user the finding's
 new verdict, and keep a verified finding under **Needs your call** until the user replies "add N" (a
 rejected one moves to **Dropped**). "add N" posts that finding: for Conductor, one more diff
-comment; on GitHub, a new review holding only that finding, created and submitted exactly as above,
-with `body` set to `1 more finding.` when the finding is inline. Never edit a review already
-posted.
+comment; on GitHub, one new review per reply holding every finding the reply names, created and
+submitted exactly as above, except that `body` opens with `<n> more finding(s).` instead of the
+**Summary**. Never edit a review already posted.
 
 Then repeat whatever is still in **Needs your call**.
 
